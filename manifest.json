@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "Network Debugging",
+  "version": "1",
+  "minimum_chrome_version": "23",
+  "icons": {
+    "16": "icon_16.png",
+    "128": "icon_128.png"
+  },
+  "permissions" : [
+   { "socket" : [
+     "tcp-connect:*:53",
+     "tcp-connect:*:80"
+   ]}
+  ],
+  "app": {
+    "background": {
+      "scripts": ["main.js"]
+    }
+  }
+}
