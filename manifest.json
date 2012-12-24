@@ -10,7 +10,9 @@
   "permissions" : [
    { "socket" : [
      "tcp-connect:*:53",
-     "tcp-connect:*:80"
+     "tcp-connect:*:80",
+     "udp-bind:*",
+     "udp-send-to:*"
    ]}
   ],
   "app": {
