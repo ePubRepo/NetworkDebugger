@@ -188,7 +188,7 @@ function publicUdpDnsQuery2(hostname, recordtype) {
 
 function publicUdpDnsQuery3(hostname, recordtype) {
   var packet = new DNSPacket();
-  packet.push('qd', new DNSRecord('_services._dns-sd._udp.local', 12, 1));
+  packet.push('qd', new DNSRecord('google.com', 15, 1));
 
   var raw = packet.serialize();
 
@@ -205,7 +205,14 @@ function publicUdpDnsQuery3(hostname, recordtype) {
           }
         });
 
-       chrome.socket.read(clientSocket, 1024, function(readInfo){
+       chrome.socket.read(clientSocket, 2048, function(readInfo){
+           var packet = DNSPacket.parse(readInfo.data);
+           console.log(packet);
+           packet.each('an', 15, function(rec) {
+             var ptr = rec.asName();
+             console.log('rec: ');
+             console.log(rec);
+           });
            console.log('Client: received response: ' + ab2str(readInfo.data), readInfo);
        });
   });
