@@ -187,7 +187,7 @@ function publicUdpDnsQuery2(hostname, recordtype) {
 }
 
 function publicUdpDnsQuery3(hostname, recordtype) {
-  var packet = new DNSPacket();
+  var packet = new DNSPacket(0x100);
   packet.push('qd', new DNSRecord('google.com', 15, 1));
 
   var raw = packet.serialize();
@@ -203,10 +203,13 @@ function publicUdpDnsQuery3(hostname, recordtype) {
           if (writeInfo.bytesWritten != raw.byteLength) {
             this.callback_('could not write DNS packet on: ' + address);
           }
+          console.log('Wrote Bytes: ' + writeInfo.bytesWritten);
         });
 
        chrome.socket.read(clientSocket, 2048, function(readInfo){
+           console.log('Read Result Code: ' + readInfo.resultCode);
            var packet = DNSPacket.parse(readInfo.data);
+           console.log('Reading Packet...');
            console.log(packet);
            packet.each('an', 15, function(rec) {
              var ptr = rec.asName();
@@ -215,6 +218,13 @@ function publicUdpDnsQuery3(hostname, recordtype) {
            });
            console.log('Client: received response: ' + ab2str(readInfo.data), readInfo);
        });
-  });
+ 
+//       chrome.socket.sendTo(clientSocket, raw, '8.8.8.8', 53, function(writeInfo) {
+//          console.log('Sent Bytes: ' + writeInfo.bytesWritten);
+//          chrome.socket.recvFrom(clientSocket, 2048, function(recvFromInfo) {
+//             console.log(recvFromInfo);
+//          });
+//       });
+ });
 }
 
