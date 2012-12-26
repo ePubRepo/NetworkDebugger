@@ -187,8 +187,11 @@ function publicUdpDnsQuery2(hostname, recordtype) {
 }
 
 function publicUdpDnsQuery3(hostname, recordtype) {
+  var dnsRecordTypeNum = 15;
+  // pass hex value 100 as flag since it corresponds to "00000000100000000",
+  // which sets the proper bit for recursion
   var packet = new DNSPacket(0x100);
-  packet.push('qd', new DNSRecord('google.com', 15, 1));
+  packet.push('qd', new DNSRecord('google.com', dnsRecordTypeNum, 1));
 
   var raw = packet.serialize();
 
@@ -211,20 +214,12 @@ function publicUdpDnsQuery3(hostname, recordtype) {
            var packet = DNSPacket.parse(readInfo.data);
            console.log('Reading Packet...');
            console.log(packet);
-           packet.each('an', 15, function(rec) {
+           packet.each('an', dnsRecordTypeNum, function(rec) {
              var ptr = rec.asName();
-             console.log('rec: ');
+             console.log('Record: ');
              console.log(rec);
            });
-           console.log('Client: received response: ' + ab2str(readInfo.data), readInfo);
-       });
- 
-//       chrome.socket.sendTo(clientSocket, raw, '8.8.8.8', 53, function(writeInfo) {
-//          console.log('Sent Bytes: ' + writeInfo.bytesWritten);
-//          chrome.socket.recvFrom(clientSocket, 2048, function(recvFromInfo) {
-//             console.log(recvFromInfo);
-//          });
-//       });
+       }); 
  });
 }
 
