@@ -12,10 +12,7 @@ function gHttpBtnClick() {
 
 function gPubDnsBtnClick() {
    console.log("=====GOOGLE PUBLIC DNS BUTTON CLICKED=====");
-//   publicTcpDnsQuery('google.com', 'a');
-//   publicUdpDnsQuery('google.com', 'a');
-//   publicUdpDnsQuery2('google.com', 'a');
-   publicUdpDnsQuery3('google.com', 'a');
+   publicUdpDnsQuery3('google.com', DNSUtil.RecordNumber.A);
 }
 
 
@@ -130,68 +127,11 @@ function publicTcpDnsQuery(hostname, recordType) {
    });
 }
 
-function publicUdpDnsQuery(hostname, recordType) {
-   console.log("Beginning UDP Query Function");
-   console.log("DNS Hostname: " + hostname);
-   console.log("DNS RecordType: " + recordType);
-
-   createdUdpSocketId = 0;
-   writeArrayBuffer = new ArrayBuffer;
-   _stringToArrayBuffer("google.com.			IN	A", function(ab) { writeArrayBuffer = ab; });
-
-   onReceiveCompletedCallback = function(recvFromInfo) {
-      console.log("UDP read completed");
-      console.log(recvFromInfo);
-      _arrayBufferToString(readInfo.data, function(ab) { console.log(ab); });
-   }
-
-   onSendCompleteCallback = function(writeInfo) {
-      console.log("UDP send to completed");
-      console.log("Write Info is..");
-      console.log(writeInfo);
-      chrome.socket.recvFrom(createdUdpSocketId, onReceiveCompletedCallback);
-   }
-
-   onBoundCallback = function(result) {
-      console.log("UDP Socket Bound");
-      console.log("UDP Socket ID: " + createdUdpSocketId);
-      console.log("UDP Result Status: " + result);
-      chrome.socket.sendTo(createdUdpSocketId, writeArrayBuffer, '8.8.8.8', 53, onSendCompleteCallback);
-   }
-
-   chrome.socket.create('udp', {}, function(createInfo) {
-      createdUdpSocketId = createInfo.socketId;
-      console.log("UDP Socket Id: " + createdUdpSocketId);
-      chrome.socket.bind(createdUdpSocketId, '192.168.1.76', 0, onBoundCallback);
-   });
-}
-
-function publicUdpDnsQuery2(hostname, recordtype) {
-   chrome.socket.create('udp', null, function(createInfo){
-       clientSocket = createInfo.socketId;
-
-       chrome.socket.connect(clientSocket, '8.8.8.8', 53, function(result){
-           console.log('chrome.socket.connect: result = ' + result.toString());
-       });
-       
-       chrome.socket.write(clientSocket, str2ab('www.google.com'), function(writeInfo){
-       //chrome.socket.write(clientSocket, , function(writeInfo){
-          console.log('writeInfo: ' + writeInfo.bytesWritten + 
-               'byte(s) written.');
-       });
-
-       chrome.socket.read(clientSocket, 1024, function(readInfo){
-           console.log('Client: received response: ' + ab2str(readInfo.data), readInfo);
-       });
-   });
-}
-
-function publicUdpDnsQuery3(hostname, recordtype) {
-  var dnsRecordTypeNum = 1;
+function publicUdpDnsQuery3(hostname, recordTypeNum) {
   // pass hex value 100 as flag since it corresponds to "00000000100000000",
   // which sets the proper bit for recursion
   var packet = new DNSPacket(0x100);
-  packet.push('qd', new DNSRecord('cnn.com', dnsRecordTypeNum, 1));
+  packet.push('qd', new DNSRecord('cnn.com', recordTypeNum, 1));
 
   var raw = packet.serialize();
 
@@ -214,16 +154,16 @@ function publicUdpDnsQuery3(hostname, recordtype) {
            var packet = DNSPacket.parse(readInfo.data);
            console.log('Reading Packet...');
            console.log(packet);
-           packet.each('qd', dnsRecordTypeNum, function(rec) {
+           packet.each('qd', recordTypeNum, function(rec) {
              console.log(rec);
            });
-           packet.each('an', dnsRecordTypeNum, function(rec) {
+           packet.each('an', recordTypeNum, function(rec) {
              var ptr = rec.asName();
              console.log("asName(): " + ptr);
              console.log('Record: ');
              console.log(rec);
            });
-           packet.each('ns', dnsRecordTypeNum, function(rec) {
+           packet.each('ns', recordTypeNum, function(rec) {
              console.log(rec);
            });
        }); 
