@@ -11,7 +11,7 @@ function gHttpBtnClick() {
 }
 
 function gPubDnsBtnClick() {
-   console.log("google public dns button clicked");
+   console.log("=====GOOGLE PUBLIC DNS BUTTON CLICKED=====");
 //   publicTcpDnsQuery('google.com', 'a');
 //   publicUdpDnsQuery('google.com', 'a');
 //   publicUdpDnsQuery2('google.com', 'a');

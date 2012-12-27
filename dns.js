@@ -98,6 +98,10 @@ DataConsumer.prototype.long = function() {
   return (this.short() << 16) + this.short();
 };
 
+DataConsumer.prototype.getBytesRead = function() {
+  return this.loc_;
+};
+
 /**
  * Consumes a DNS name, which will either finish with a NULL byte or a suffix
  * reference (i.e., 0xc0 <ref>).
@@ -152,12 +156,17 @@ DNSPacket.parse = function(buffer) {
     throw new Error('DNS packet must start with 00 00');
   }
 
+  console.log(" * Parsed Beginning, Total Read Bytes: " + consumer.getBytesRead());
+
   // Most DNS servers will return a UDP packet such that 
   // the value of flags is something like "33152"
   // (flags will be an integer decimal)
   // when "33152" is converted to a decimal, the value is:
   // "1000000110000000" This is 16 bits or 2 bytes
   var flags = consumer.short();
+
+  console.log(" * Parsed Flags, Total Read Bytes: " + consumer.getBytesRead());
+
   var count = {
     'qd': consumer.short(),
     'an': consumer.short(),
@@ -170,6 +179,8 @@ DNSPacket.parse = function(buffer) {
   console.log("Authority (NS) Record Count: " + count['ns']);
   console.log("Additional (AR) Record Count: " + count['ar']);
 
+  console.log(" * Parsed Header, Total Read Bytes: " + consumer.getBytesRead());
+
   var packet = new DNSPacket(flags);
 
   // Parse the QUESTION section.
@@ -180,6 +191,8 @@ DNSPacket.parse = function(buffer) {
         consumer.short()); // class
     packet.push('qd', part);
   }
+
+  console.log(" * Parsed Question, Total Read Bytes: " + consumer.getBytesRead());
 
   // Parse the ANSWER, AUTHORITY and ADDITIONAL sections.
   ['an', 'ns', 'ar'].forEach(function(section) {
@@ -193,6 +206,8 @@ DNSPacket.parse = function(buffer) {
       packet.push(section, part);
     }
   });
+
+  console.log(" * Parsing Finished, Total Read Bytes: " + consumer.getBytesRead());
 
   consumer.isEOF() || console.warn('was not EOF on incoming packet');
   return packet;
@@ -250,6 +265,8 @@ DNSPacket.prototype.serialize = function() {
  * DNSRecord is a record inside a DNS packet; e.g. a QUESTION, or an ANSWER,
  * AUTHORITY, or ADDITIONAL record. Note that QUESTION records are special,
  * and do not have ttl or data.
+ *
+ * @param opt_data optional Uint8Array containing extra data
  */
 var DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
   this.name = name;
@@ -260,6 +277,8 @@ var DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
   if (!this.isQD) {
     this.ttl = opt_ttl;
     this.data_ = opt_data;
+    console.log("Extra Data Supplied to DNSRecord");
+    console.log("asName() for Record Returns :" + this.asName());
   }
 };
 
