@@ -1,3 +1,7 @@
+DNSUtil = {};
+DNSUtil.RecordNumber = {};
+DNSUtil.RecordNumber.A = 1;
+DNSUtil.RecordNumber.MX = 15;
 
 /**
  * DataWriter writes data to an ArrayBuffer, presenting it as the instance
