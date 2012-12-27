@@ -191,7 +191,7 @@ function publicUdpDnsQuery3(hostname, recordtype) {
   // pass hex value 100 as flag since it corresponds to "00000000100000000",
   // which sets the proper bit for recursion
   var packet = new DNSPacket(0x100);
-  packet.push('qd', new DNSRecord('google.com', dnsRecordTypeNum, 1));
+  packet.push('qd', new DNSRecord('cnn.com', dnsRecordTypeNum, 1));
 
   var raw = packet.serialize();
 
@@ -219,6 +219,7 @@ function publicUdpDnsQuery3(hostname, recordtype) {
            });
            packet.each('an', dnsRecordTypeNum, function(rec) {
              var ptr = rec.asName();
+             console.log("asName(): " + ptr);
              console.log('Record: ');
              console.log(rec);
            });

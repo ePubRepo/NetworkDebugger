@@ -109,8 +109,10 @@ DataConsumer.prototype.getBytesRead = function() {
 DataConsumer.prototype.name = function() {
   var parts = [];
   for (;;) {
+    console.log("Bytes Read: " + this.getBytesRead());
     var len = this.byte();
     console.log("Expected Length of Name: " + len);
+    console.log("Bytes Read: " + this.getBytesRead());
     if (!len) {
       break;
     } else if (len == 0xc0) {
@@ -124,8 +126,15 @@ DataConsumer.prototype.name = function() {
 
     // Otherwise, consume a string!
     var v = '';
+    console.log("Consuming String... " + len + " bytes left");
+    console.log("Bytes Read: " + this.getBytesRead());
     while (len-- > 0) {
-      v += String.fromCharCode(this.byte());
+      var nextByte = this.byte();
+      console.log(len + " bytes left in string; read byte: " + nextByte);
+      var nextChar = String.fromCharCode(nextByte);
+      console.log(len + " bytes left in string; read char: " + nextChar);
+      v += nextChar;
+      console.log("Bytes Read: " + this.getBytesRead());
     }
     console.log("String Name: " + v);
     parts.push(v);
@@ -197,6 +206,7 @@ DNSPacket.parse = function(buffer) {
   // Parse the ANSWER, AUTHORITY and ADDITIONAL sections.
   ['an', 'ns', 'ar'].forEach(function(section) {
     for (var i = 0; i < count[section]; ++i) {
+      console.log(" * Parsing Starting for new DNSRecord, Total Read Bytes: " + consumer.getBytesRead());
       var part = new DNSRecord(
           consumer.name(),
           consumer.short(), // type
@@ -204,6 +214,7 @@ DNSPacket.parse = function(buffer) {
           consumer.long(),  // ttl
           consumer.slice(consumer.short()));
       packet.push(section, part);
+      console.log(" * Parsing Finished for new DNSRecord, Total Read Bytes: " + consumer.getBytesRead());
     }
   });
 
