@@ -106,6 +106,10 @@ DataConsumer.prototype.getBytesRead = function() {
   return this.loc_;
 };
 
+DataConsumer.prototype.getTotalBytes = function() {
+  return this.view_.byteLength;
+};
+
 /**
  * Consumes a DNS name, which will either finish with a NULL byte or a suffix
  * reference (i.e., 0xc0 <ref>).
@@ -113,11 +117,12 @@ DataConsumer.prototype.getBytesRead = function() {
 DataConsumer.prototype.name = function() {
   var parts = [];
   for (;;) {
-    console.log("Bytes Read: " + this.getBytesRead());
+    console.log("Bytes Read: " + this.getBytesRead() + " of total " + this.getTotalBytes());
     var len = this.byte();
     console.log("Expected Length of Name: " + len);
     console.log("Bytes Read: " + this.getBytesRead());
     if (!len) {
+      console.log("Quitting Read Part of DataConsumer.name() Function");
       break;
     } else if (len == 0xc0) {
       // TODO: This indicates a pointer to another valid name inside the

@@ -12,24 +12,8 @@ function gHttpBtnClick() {
 
 function gPubDnsBtnClick() {
    console.log("=====GOOGLE PUBLIC DNS BUTTON CLICKED=====");
-   publicUdpDnsQuery3('google.com', DNSUtil.RecordNumber.A);
+   publicUdpDnsQuery3('google.com', DNSUtil.RecordNumber.MX);
 }
-
-
-// From https://developer.chrome.com/trunk/apps/app_hardware.html
-var str2ab=function(str) {
-  var buf=new ArrayBuffer(str.length);
-  var bufView=new Uint8Array(buf);
-  for (var i=0; i<str.length; i++) {
-    bufView[i]=str.charCodeAt(i);
-  }
-  return buf;
-}
-
-// From https://developer.chrome.com/trunk/apps/app_hardware.html
-var ab2str=function(buf) {
-  return String.fromCharCode.apply(null, new Uint8Array(buf));
-};
 
   /**
    * Converts an array buffer to a string
@@ -131,7 +115,7 @@ function publicUdpDnsQuery3(hostname, recordTypeNum) {
   // pass hex value 100 as flag since it corresponds to "00000000100000000",
   // which sets the proper bit for recursion
   var packet = new DNSPacket(0x100);
-  packet.push('qd', new DNSRecord('cnn.com', recordTypeNum, 1));
+  packet.push('qd', new DNSRecord(hostname, recordTypeNum, 1));
 
   var raw = packet.serialize();
 
