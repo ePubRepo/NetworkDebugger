@@ -187,7 +187,7 @@ function publicUdpDnsQuery2(hostname, recordtype) {
 }
 
 function publicUdpDnsQuery3(hostname, recordtype) {
-  var dnsRecordTypeNum = 15;
+  var dnsRecordTypeNum = 1;
   // pass hex value 100 as flag since it corresponds to "00000000100000000",
   // which sets the proper bit for recursion
   var packet = new DNSPacket(0x100);
@@ -210,13 +210,19 @@ function publicUdpDnsQuery3(hostname, recordtype) {
         });
 
        chrome.socket.read(clientSocket, 2048, function(readInfo){
-           console.log('Read Result Code: ' + readInfo.resultCode);
+           console.log('Read Result Code / Bytes Read: ' + readInfo.resultCode);
            var packet = DNSPacket.parse(readInfo.data);
            console.log('Reading Packet...');
            console.log(packet);
+           packet.each('qd', dnsRecordTypeNum, function(rec) {
+             console.log(rec);
+           });
            packet.each('an', dnsRecordTypeNum, function(rec) {
              var ptr = rec.asName();
              console.log('Record: ');
+             console.log(rec);
+           });
+           packet.each('ns', dnsRecordTypeNum, function(rec) {
              console.log(rec);
            });
        }); 

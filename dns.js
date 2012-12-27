@@ -68,6 +68,7 @@ var DataConsumer = function(arg) {
  * @return whether this DataConsumer has consumed all its data
  */
 DataConsumer.prototype.isEOF = function() {
+  // this indicates that loc_ is incremented in bytes
   return this.loc_ >= this.view_.byteLength;
 };
 
@@ -82,11 +83,14 @@ DataConsumer.prototype.slice = function(length) {
 };
 
 DataConsumer.prototype.byte = function() {
+  // incrementing this by 1 seems to indicate that this
+  // function returns one byte at a time (i.e., 8 bits)
   this.loc_ += 1;
   return this.view_[this.loc_ - 1];
 };
 
 DataConsumer.prototype.short = function() {
+  // seems to return two bytes of data
   return (this.byte() << 8) + this.byte();
 };
 
@@ -102,6 +106,7 @@ DataConsumer.prototype.name = function() {
   var parts = [];
   for (;;) {
     var len = this.byte();
+    console.log("Expected Length of Name: " + len);
     if (!len) {
       break;
     } else if (len == 0xc0) {
@@ -109,6 +114,7 @@ DataConsumer.prototype.name = function() {
       // DNSPacket, and is always a suffix: we're at the end of the name.
       // We should probably hold onto this value instead of discarding it.
       var ref = this.byte();
+      console.log("Pointer to Valid Name: " + ref);
       break;
     }
 
@@ -117,6 +123,7 @@ DataConsumer.prototype.name = function() {
     while (len-- > 0) {
       v += String.fromCharCode(this.byte());
     }
+    console.log("String Name: " + v);
     parts.push(v);
   }
   return parts.join('.');
@@ -138,9 +145,18 @@ var DNSPacket = function(opt_flags) {
  */
 DNSPacket.parse = function(buffer) {
   var consumer = new DataConsumer(buffer);
-  if (consumer.short()) {
+
+  var firstTwoBytes = consumer.short();
+  console.log("First Two Bytes of packet: " + firstTwoBytes);
+  if (firstTwoBytes) {
     throw new Error('DNS packet must start with 00 00');
   }
+
+  // Most DNS servers will return a UDP packet such that 
+  // the value of flags is something like "33152"
+  // (flags will be an integer decimal)
+  // when "33152" is converted to a decimal, the value is:
+  // "1000000110000000" This is 16 bits or 2 bytes
   var flags = consumer.short();
   var count = {
     'qd': consumer.short(),
@@ -148,12 +164,18 @@ DNSPacket.parse = function(buffer) {
     'ns': consumer.short(),
     'ar': consumer.short(),
   };
+
+  console.log("Query (QD) Record Count: " + count['qd']);
+  console.log("Answer (AN) Record Count: " + count['an']);
+  console.log("Authority (NS) Record Count: " + count['ns']);
+  console.log("Additional (AR) Record Count: " + count['ar']);
+
   var packet = new DNSPacket(flags);
 
   // Parse the QUESTION section.
   for (var i = 0; i < count['qd']; ++i) {
     var part = new DNSRecord(
-        consumer.name(),
+        consumer.name(),   // name
         consumer.short(),  // type
         consumer.short()); // class
     packet.push('qd', part);
