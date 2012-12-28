@@ -12,7 +12,7 @@ function gHttpBtnClick() {
 
 function gPubDnsBtnClick() {
    console.log("=====GOOGLE PUBLIC DNS BUTTON CLICKED=====");
-   publicUdpDnsQuery3('google.com', DNSUtil.RecordNumber.MX);
+   publicUdpDnsQuery3('mail.google.com', DNSUtil.RecordNumber.A);
 }
 
   /**
@@ -138,16 +138,16 @@ function publicUdpDnsQuery3(hostname, recordTypeNum) {
            var packet = DNSPacket.parse(readInfo.data);
            console.log('Reading Packet...');
            console.log(packet);
-           packet.each('qd', recordTypeNum, function(rec) {
+           packet.each('qd', function(rec) {
              console.log(rec);
            });
-           packet.each('an', recordTypeNum, function(rec) {
+           packet.each('an', function(rec) {
              var ptr = rec.asName();
              console.log("asName(): " + ptr);
              console.log('Record: ');
              console.log(rec);
            });
-           packet.each('ns', recordTypeNum, function(rec) {
+           packet.each('ns', function(rec) {
              console.log(rec);
            });
        }); 

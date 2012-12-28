@@ -2,6 +2,7 @@ DNSUtil = {};
 DNSUtil.RecordNumber = {};
 DNSUtil.RecordNumber.A = 1;
 DNSUtil.RecordNumber.MX = 15;
+DNSUtil.RecordNumber.CNAME = 5;
 
 /**
  * DataWriter writes data to an ArrayBuffer, presenting it as the instance
@@ -110,14 +111,28 @@ DataConsumer.prototype.getTotalBytes = function() {
   return this.view_.byteLength;
 };
 
+DataConsumer.prototype.parseDataSection = function(recordTypeNum) {
+  var nameTxt = "";
+  console.log("DataConsumer.parseDataSection operating on " + this.getTotalBytes() + " total bytes for record of type " + recordTypeNum);
+  console.log("DNS Record Type to Parse Data Section of: " + recordTypeNum);
+  while (!this.isEOF()) {
+    var nextByte = this.byte();
+    var nextChar = String.fromCharCode(nextByte);
+    console.log("next byte: " + nextByte + " -- next char: " + nextChar);
+    nameTxt += nextChar;
+  }
+  return nameTxt;
+};
+
 /**
  * Consumes a DNS name, which will either finish with a NULL byte or a suffix
  * reference (i.e., 0xc0 <ref>).
  */
 DataConsumer.prototype.name = function() {
+  console.log(this);
   var parts = [];
   for (;;) {
-    console.log("Bytes Read: " + this.getBytesRead() + " of total " + this.getTotalBytes());
+    console.log("DataConsumer.name() - Begin - Bytes Read: " + this.getBytesRead() + " of total " + this.getTotalBytes());
     var len = this.byte();
     console.log("Expected Length of Name: " + len);
     console.log("Bytes Read: " + this.getBytesRead());
@@ -148,6 +163,8 @@ DataConsumer.prototype.name = function() {
     console.log("String Name: " + v);
     parts.push(v);
   }
+  console.log("DataConsumer.name() - End - Bytes Read: " + this.getBytesRead() + " of total " + this.getTotalBytes());
+
   return parts.join('.');
 };
 
@@ -164,6 +181,7 @@ var DNSPacket = function(opt_flags) {
 
 /**
  * Parse a DNSPacket from an ArrayBuffer (or Uint8Array).
+ * Read in raw binary data from the socket and create a new packet.
  */
 DNSPacket.parse = function(buffer) {
   var consumer = new DataConsumer(buffer);
@@ -203,6 +221,7 @@ DNSPacket.parse = function(buffer) {
 
   // Parse the QUESTION section.
   for (var i = 0; i < count['qd']; ++i) {
+        console.log("About to Parse DNS Record Name... Total Read Bytes: " + consumer.getBytesRead());
     var part = new DNSRecord(
         consumer.name(),   // name
         consumer.short(),  // type
@@ -289,6 +308,8 @@ DNSPacket.prototype.serialize = function() {
  * @param opt_data optional Uint8Array containing extra data
  */
 var DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
+  console.log("DNS Record Name: " + name);
+  console.log("DNS Record Type: " + type);
   this.name = name;
   this.type = type;
   this.cl = cl;
@@ -303,5 +324,6 @@ var DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
 };
 
 DNSRecord.prototype.asName = function() {
-  return new DataConsumer(this.data_).name();
+  console.log("DNSRecord.parseDataSection() called");
+  return new DataConsumer(this.data_).parseDataSection(this.type);
 };
