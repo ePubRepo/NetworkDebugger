@@ -101,7 +101,7 @@ function publicTcpDnsQuery(hostname, recordType) {
    });
 }
 
-function publicUdpDnsQuery3(hostname, recordTypeNum) {
+function publicUdpDnsQuery3(hostname, recordTypeNum, dnsServer) {
   // pass hex value 100 as flag since it corresponds to "00000000100000000",
   // which sets the proper bit for recursion
   var packet = new DNSPacket(0x100);
@@ -112,7 +112,7 @@ function publicUdpDnsQuery3(hostname, recordTypeNum) {
   chrome.socket.create('udp', null, function(createInfo){
        clientSocket = createInfo.socketId;
 
-       chrome.socket.connect(clientSocket, '8.8.8.8', 53, function(result){
+       chrome.socket.connect(clientSocket, dnsServer, 53, function(result){
            console.log('chrome.socket.connect: result = ' + result.toString());
        });
 

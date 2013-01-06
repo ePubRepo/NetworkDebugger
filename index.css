@@ -41,4 +41,17 @@ body {
 
 #console {
    width: 95%;
+   min-height: 200px;
+}
+
+.button {
+   background-color: #4D90FE;
+   border: 1px solid #3079ED;
+   color: white;
+   font-weight: bold;
+   -webkit-border-radius: 2px;
+   border-radius: 2px;
+   -webkit-transition: all 0.218s;
+   transition: all 0.218s;
+   cursor: pointer;
 }

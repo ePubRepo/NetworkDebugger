@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <title>Network Debugger</title>
     <link href="index.css" rel="stylesheet">
-    <script type="text/javascript" src="index.js"></script>
     <script type="text/javascript" src="test.js"></script>
     <script type="text/javascript" src="dns.js"></script>
+    <script type="text/javascript" src="index.js"></script>
 </head>
 <body>
 <!-- Page Top -->
@@ -20,14 +20,14 @@
 <div class="center-container">
 <div id="left">
 Telnet Tests<br />
-<input type="button" value="google.com HTTP" id="gHttpBtn" />
-<input type="button" value="google.com HTTPS" id="gHttspBtn" />
-<input type="button" value="mail.google.com HTTP" id="mHttpBtn" />
-<input type="button" value="mail.google.com HTTPS" id="mHttspBtn" />
-<input type="button" value="drive.google.com HTTP" id="dHttpBtn" />
-<input type="button" value="drive.google.com HTTPS" id="dHttpsBtn" />
-<input type="button" value="aspmx.l.google.com SMTP" id="aspmxBtn" />
-<input type="button" value="smtp.gmail.com TLS" id="smtpBtn" />
+<input type="button" class="button" value="google.com HTTP" id="gHttpBtn" />
+<input type="button" class="button" value="google.com HTTPS" id="gHttspBtn" />
+<input type="button" class="button" value="mail.google.com HTTP" id="mHttpBtn" />
+<input type="button" class="button" value="mail.google.com HTTPS" id="mHttspBtn" />
+<input type="button" class="button" value="drive.google.com HTTP" id="dHttpBtn" />
+<input type="button" class="button" value="drive.google.com HTTPS" id="dHttpsBtn" />
+<input type="button" class="button" value="aspmx.l.google.com SMTP" id="aspmxBtn" />
+<input type="button" class="button" value="smtp.gmail.com TLS" id="smtpBtn" />
 </div>
 
 <div id="right">
@@ -44,15 +44,15 @@ DNS Tests<br />
 <option>TXT</option>
 </select>
 <br />
-<input type="button" value="Google DNS" id="gDnsBtn" />
-<input type="button" value="Level 3 DNS" id="l3DnsBtn" />
-<input type="button" value="Open DNS" id="openDnsBtn" />
+<input type="button" class="button" value="Google DNS" id="gDnsBtn" />
+<input type="button" class="button" value="Level 3 DNS" id="l3DnsBtn" />
+<input type="button" class="button" value="Open DNS" id="oDnsBtn" />
 </div>
 
 </div>
 
 <div class="center-container">
-<textarea id="console"></textarea>
+<textarea id="console" readonly="readonly"></textarea>
 </div>
 </body>
 </html>
