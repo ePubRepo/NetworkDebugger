@@ -1,10 +1,9 @@
 {
   "manifest_version": 2,
   "name": "Network Debugging",
-  "version": "1",
-  "minimum_chrome_version": "23",
+  "version": "0.1",
+  "minimum_chrome_version": "25",
   "icons": {
-    "16": "icon_16.png",
     "128": "icon_128.png"
   },
   "permissions" : [
@@ -13,11 +12,12 @@
      "tcp-connect:*:80",
      "udp-bind:*",
      "udp-send-to:*"
-   ]}
+   ]},
+   "clipboardWrite"
   ],
   "app": {
     "background": {
-      "scripts": ["main.js"]
+      "scripts": ["background.js"]
     }
   }
 }

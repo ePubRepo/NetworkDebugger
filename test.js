@@ -1,19 +1,9 @@
-console.log("hi");
-
-document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById('gPubDnsBtn').addEventListener('click', gPubDnsBtnClick);
-  document.getElementById('gHttpBtn').addEventListener('click', gHttpBtnClick);
-});
 
 function gHttpBtnClick() {
    console.log("http query button clicked");
    httpRequest("www.google.com", "/", "www.google.com");
 }
 
-function gPubDnsBtnClick() {
-   console.log("=====GOOGLE PUBLIC DNS BUTTON CLICKED=====");
-   publicUdpDnsQuery3('mail.google.com', DNSUtil.RecordNumber.A);
-}
 
   /**
    * Converts an array buffer to a string

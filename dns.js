@@ -115,11 +115,22 @@ DataConsumer.prototype.parseDataSection = function(recordTypeNum) {
   var nameTxt = "";
   console.log("DataConsumer.parseDataSection operating on " + this.getTotalBytes() + " total bytes for record of type " + recordTypeNum);
   console.log("DNS Record Type to Parse Data Section of: " + recordTypeNum);
-  while (!this.isEOF()) {
-    var nextByte = this.byte();
-    var nextChar = String.fromCharCode(nextByte);
-    console.log("next byte: " + nextByte + " -- next char: " + nextChar);
-    nameTxt += nextChar;
+  switch (recordTypeNum) {
+     case 1:
+       var arrOctect = [];
+       while (!this.isEOF()) {
+         arrOctect.push(this.byte());
+       }
+       nameTxt = arrOctect.join(".");
+       break;
+     case 5:
+       while (!this.isEOF()) {
+         var nextByte = this.byte();
+         var nextChar = String.fromCharCode(nextByte);
+         console.log("next byte: " + nextByte + " -- next char: " + nextChar);
+         nameTxt += nextChar;
+       }
+       break;
   }
   return nameTxt;
 };

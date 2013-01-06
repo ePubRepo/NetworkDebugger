@@ -3,13 +3,56 @@
 <head>
     <meta charset="utf-8">
     <title>Network Debugger</title>
-    <link href="style/main.css" rel="stylesheet">
+    <link href="index.css" rel="stylesheet">
+    <script type="text/javascript" src="index.js"></script>
     <script type="text/javascript" src="test.js"></script>
     <script type="text/javascript" src="dns.js"></script>
 </head>
 <body>
-<h1>Network Debugger</h1>
-<input type="button" value="Google.com HTTP" id="gHttpBtn" />
-<input type="button" value="Google Public DNS" id="gPubDnsBtn" />
+<!-- Page Top -->
+<div class="top-container">
+<div class="center-container">
+<div class="top-header">Network Debugger</div>
+</div>
+</div>
+
+<!-- Page Contents -->
+<div class="center-container">
+<div id="left">
+Telnet Tests<br />
+<input type="button" value="google.com HTTP" id="gHttpBtn" />
+<input type="button" value="google.com HTTPS" id="gHttspBtn" />
+<input type="button" value="mail.google.com HTTP" id="mHttpBtn" />
+<input type="button" value="mail.google.com HTTPS" id="mHttspBtn" />
+<input type="button" value="drive.google.com HTTP" id="dHttpBtn" />
+<input type="button" value="drive.google.com HTTPS" id="dHttpsBtn" />
+<input type="button" value="aspmx.l.google.com SMTP" id="aspmxBtn" />
+<input type="button" value="smtp.gmail.com TLS" id="smtpBtn" />
+</div>
+
+<div id="right">
+Har Files
+</div>
+
+<div id="middle">
+DNS Tests<br />
+<input type="text" value="Hostname" id="dnsHostname" />
+<select id="dnsRecordType">
+<option>AAAA</option>
+<option>A</option>
+<option>MX</option>
+<option>TXT</option>
+</select>
+<br />
+<input type="button" value="Google DNS" id="gDnsBtn" />
+<input type="button" value="Level 3 DNS" id="l3DnsBtn" />
+<input type="button" value="Open DNS" id="openDnsBtn" />
+</div>
+
+</div>
+
+<div class="center-container">
+<textarea id="console"></textarea>
+</div>
 </body>
 </html>
