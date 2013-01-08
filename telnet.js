@@ -15,9 +15,15 @@ Telnet.prototype._abDataToSend = null;
   *
   * @private
   * @param {ArrayBuffer} buf The buffer to convert
+  * @param {Function} callback The function to call when conversion is complete
   */
-Telnet.prototype._arrayBufferToString = function(buf) {
-   return String.fromCharCode.apply(null, new Uint16Array(buf));
+Telnet.prototype._arrayBufferToString = function(buf, callback) {
+    var bb = new Blob([new Uint8Array(buf)]);
+    var f = new FileReader();
+    f.onload = function(e) {
+      callback(e.target.result);
+    };
+    f.readAsText(bb);
 };
 
 /**
@@ -25,36 +31,30 @@ Telnet.prototype._arrayBufferToString = function(buf) {
  *
  * @private
  * @param {String} str The string to convert
+ * @param {Function} callback The function to call when conversion is complete
  */
-Telnet.prototype._stringToArrayBuffer = function(str) {
-  var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
-  var bufView = new Uint16Array(buf);
-  for (var i=0, strLen=str.length; i<strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  return buf;
-}
+Telnet.prototype._stringToArrayBuffer = function(str, callback) {
+    var bb = new Blob([str]);
+    var f = new FileReader();
+    f.onload = function(e) {
+        callback(e.target.result);
+    };
+    f.readAsArrayBuffer(bb);
+};
 
 Telnet.prototype._writePlainText = function(textToSend) {
 
 };
 
 Telnet.prototype._onReadCompletedCallback = function(readInfo) {
-  console.log("read completed - proto");
-  console.log(readInfo);
-  var stringS = this._arrayBufferToString(readInfo.data);
-  console.log(stringS);
+  var receiveString = function(str) {
+    console.log(str);
+  };
+  this._arrayBufferToString(readInfo.data, receiveString.bind(this));
 };
 
 Telnet.prototype._read = function() {
-  console.log(this);
-  chrome.socket.read(this._socketId, 1024, function(readInfo) {
-      console.log("read completed - internal");
-      console.log(readInfo);
-_arrayBufferToString(readInfo.data, function(ab) { console.log(ab); });
-//      console.log(this._arrayBufferToString(readInfo.data));
-   }.bind(this));
-console.log("done w/ read");
+  chrome.socket.read(this._socketId, 1024, this._onReadCompletedCallback.bind(this));
 };
 
 Telnet.prototype._onWriteCompleteCallback = function(writeInfo) {
@@ -67,8 +67,11 @@ Telnet.prototype._write = function() {
 
 Telnet.prototype._onConnectedCallback = function() {
    this._isConnected = true;
-   this._abDataToSend = this._stringToArrayBuffer("GET / HTTP/1.1\r\nHost:www.google.com\r\n\r\n");
-   this._write();
+   var receiveArrayBuffer = function(ab) {
+      this._abDataToSend = ab;
+      this._write();
+   };
+   this._stringToArrayBuffer("GET / HTTP/1.1\r\nHost:www.google.com\r\n\r\n", receiveArrayBuffer.bind(this));
 };
 
 Telnet.prototype._createSocket = function() {
@@ -78,34 +81,6 @@ Telnet.prototype._createSocket = function() {
    }.bind(this));
 };
 
-function httpRequest(connectionDestination, path, host) {
-   console.log("HTTP Connection Destination: " + connectionDestination);
-   console.log("HTTP Path: " + path);
-   console.log("HTTP Host: " + host);
-
-   createdSocketId = 0;
-   writeArrayBuffer = new ArrayBuffer;
-   _stringToArrayBuffer("GET / HTTP/1.1\r\nHost:www.google.com\r\n\r\n", function(ab) { writeArrayBuffer = ab; });
-
-   onReadCompletedCallback = function(readInfo) {
-      console.log("read completed");
-      console.log(readInfo);
-      _arrayBufferToString(readInfo.data, function(ab) { console.log(ab); });
-   }
-
-   onWriteCompleteCallback = function(writeInfo) {
-      console.log("write completed");
-      console.log(writeInfo);
-      chrome.socket.read(createdSocketId, 1024, onReadCompletedCallback);
-   }
-
-   onConnectedCallback = function(result) {
-      console.log("connection established");
-      chrome.socket.write(createdSocketId, writeArrayBuffer, onWriteCompleteCallback);
-   }
-
-   chrome.socket.create('tcp', {}, function(createInfo) {
-      createdSocketId = createInfo.socketId;
-      chrome.socket.connect(createInfo.socketId, connectionDestination, 80, onConnectedCallback);
-   });
-}
+Telnet.prototype._closeSocket = function() {
+   chrome.socket.disconnect(this._socketId);
+};
