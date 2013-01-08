@@ -61,6 +61,6 @@ function gDnsBtnClick() {
 }
 
 function gHttpBtnClick() {
-   var objTelnet = new Telnet('www.google.com', 80);
+   var objTelnet = new Telnet('www.apps-apps.info', 80);
    objTelnet._createSocket();
 }

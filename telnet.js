@@ -51,15 +51,14 @@ Telnet.prototype._read = function() {
   chrome.socket.read(this._socketId, 1024, function(readInfo) {
       console.log("read completed - internal");
       console.log(readInfo);
-      _arrayBufferToString(readInfo.data, function(ab) { console.log(ab); });
-   });
+_arrayBufferToString(readInfo.data, function(ab) { console.log(ab); });
+//      console.log(this._arrayBufferToString(readInfo.data));
+   }.bind(this));
 console.log("done w/ read");
 };
 
 Telnet.prototype._onWriteCompleteCallback = function(writeInfo) {
-  console.log("write completed");
-  chrome.socket.read(this._socketId, 1024, this._onReadCompletedCallback.bind(this));
-  //this._read();
+  this._read();
 };
 
 Telnet.prototype._write = function() {
