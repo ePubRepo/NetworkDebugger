@@ -59,3 +59,8 @@ function gDnsBtnClick() {
          '8.8.8.8');
    }
 }
+
+function gHttpBtnClick() {
+   var objTelnet = new Telnet('www.google.com', 80);
+   objTelnet._createSocket();
+}

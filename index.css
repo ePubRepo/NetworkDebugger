@@ -31,12 +31,17 @@ body {
 
 #middle {
    width: 30%;
-   margin-left: 30%;
+   margin-left: 36%;
 }
 
 #right {
    float: right;
    width: 30%;
+}
+
+.column-header {
+   margin-bottom: 0.25em;
+   border-bottom: 1px solid #E5E5E5;
 }
 
 #console {

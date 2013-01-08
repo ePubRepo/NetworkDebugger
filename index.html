@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <title>Network Debugger</title>
     <link href="index.css" rel="stylesheet">
-    <script type="text/javascript" src="test.js"></script>
-    <script type="text/javascript" src="dns.js"></script>
+    <script type="text/javascript" src="quick-test.js"></script>
+    <script type="text/javascript" src="quick-dns.js"></script>
     <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="telnet.js"></script>
 </head>
 <body>
 <!-- Page Top -->
@@ -19,7 +20,7 @@
 <!-- Page Contents -->
 <div class="center-container">
 <div id="left">
-Telnet Tests<br />
+<div class="column-header">Telnet Tests</div>
 <input type="button" class="button" value="google.com HTTP" id="gHttpBtn" />
 <input type="button" class="button" value="google.com HTTPS" id="gHttspBtn" />
 <input type="button" class="button" value="mail.google.com HTTP" id="mHttpBtn" />
@@ -31,11 +32,11 @@ Telnet Tests<br />
 </div>
 
 <div id="right">
-Har Files
+<div class="column-header">Har Files</div>
 </div>
 
 <div id="middle">
-DNS Tests<br />
+<div class="column-header">DNS Tests</div>
 <input type="text" value="Hostname" id="dnsHostname" />
 <select id="dnsRecordType">
 <option>AAAA</option>
