@@ -8,8 +8,9 @@
   },
   "permissions" : [
    { "socket" : [
-     "tcp-connect:*:53",
+     "tcp-connect:*:443",
      "tcp-connect:*:80",
+     "tcp-connect:*:25",
      "udp-bind:*",
      "udp-send-to:*"
    ]},

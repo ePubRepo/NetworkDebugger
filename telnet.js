@@ -9,6 +9,8 @@ Telnet.prototype._port = null;
 Telnet.prototype._socketId = null;
 Telnet.prototype._isConnected = false;
 Telnet.prototype._abDataToSend = null;
+Telnet.prototype._strDataToSend = null;
+Telnet.prototype._consoleFnc = null;
 
 /**
   * Converts an array buffer to a string
@@ -42,19 +44,30 @@ Telnet.prototype._stringToArrayBuffer = function(str, callback) {
     f.readAsArrayBuffer(bb);
 };
 
+Telnet.prototype.setConsoleFunction = function(fnc) {
+   this._consoleFnc = fnc;
+};
+
+Telnet.prototype.setPlainTextDataToSend = function(textToSend) {
+   this._strDataToSend = textToSend;
+};
+
 Telnet.prototype._writePlainText = function(textToSend) {
 
 };
 
 Telnet.prototype._onReadCompletedCallback = function(readInfo) {
   var receiveString = function(str) {
-    console.log(str);
+  console.log(str);
+    if (typeof(this._consoleFnc) == "function") {
+      this._consoleFnc(str);
+    }
   };
   this._arrayBufferToString(readInfo.data, receiveString.bind(this));
 };
 
 Telnet.prototype._read = function() {
-  chrome.socket.read(this._socketId, 1024, this._onReadCompletedCallback.bind(this));
+  chrome.socket.read(this._socketId, this._onReadCompletedCallback.bind(this));
 };
 
 Telnet.prototype._onWriteCompleteCallback = function(writeInfo) {
@@ -71,7 +84,7 @@ Telnet.prototype._onConnectedCallback = function() {
       this._abDataToSend = ab;
       this._write();
    };
-   this._stringToArrayBuffer("GET / HTTP/1.1\r\nHost:www.google.com\r\n\r\n", receiveArrayBuffer.bind(this));
+   this._stringToArrayBuffer(this._strDataToSend, receiveArrayBuffer.bind(this));
 };
 
 Telnet.prototype._createSocket = function() {

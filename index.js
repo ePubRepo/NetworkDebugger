@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
   // add listeners for tcp telnet tests
   document.getElementById('gHttpBtn').addEventListener('click', gHttpBtnClick);
+  document.getElementById('gHttpsBtn').addEventListener('click', gHttpsBtnClick);
+  document.getElementById('mHttpBtn').addEventListener('click', mHttpBtnClick);
 
   // add listeners for udp dns tests
   document.getElementById('gDnsBtn').addEventListener('click', gDnsBtnClick);
@@ -33,6 +35,10 @@ DNSInputHelper.prototype.getRecordType = function() {
    }
 };
 
+function ndbConsole(outStr) {
+   document.getElementById("console").value = outStr;
+}
+
 function l3DnsBtnClick() {
    var inputHelper = new DNSInputHelper();
    if (inputHelper.isValidHostnameEntered()) {
@@ -62,5 +68,21 @@ function gDnsBtnClick() {
 
 function gHttpBtnClick() {
    var objTelnet = new Telnet('www.google.com', 80);
+   objTelnet.setConsoleFunction(ndbConsole);
+   objTelnet.setPlainTextDataToSend("GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n");
+   objTelnet._createSocket();
+}
+
+function gHttpsBtnClick() {
+   var objTelnet = new Telnet('74.125.228.114', 443);
+   objTelnet.setConsoleFunction(ndbConsole);
+   objTelnet.setPlainTextDataToSend("GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n");
+   objTelnet._createSocket();
+}
+
+function mHttpBtnClick() {
+   var objTelnet = new Telnet('mail.google.com', 80);
+   objTelnet.setConsoleFunction(ndbConsole);
+   objTelnet.setPlainTextDataToSend("GET / HTTP/1.1\r\nHost: mail.google.com\r\n\r\n");
    objTelnet._createSocket();
 }
