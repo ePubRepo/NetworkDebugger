@@ -1,9 +1,3 @@
-DNSUtil = {};
-DNSUtil.RecordNumber = {};
-DNSUtil.RecordNumber.A = 1;
-DNSUtil.RecordNumber.AAAA = 28;
-DNSUtil.RecordNumber.MX = 15;
-DNSUtil.RecordNumber.CNAME = 5;
 
 /**
  * DataWriter writes data to an ArrayBuffer, presenting it as the instance

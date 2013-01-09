@@ -1,10 +1,4 @@
 
-function gHttpBtnClick() {
-   console.log("http query button clicked");
-   httpRequest("www.google.com", "/", "www.google.com");
-}
-
-
   /**
    * Converts an array buffer to a string
    *
