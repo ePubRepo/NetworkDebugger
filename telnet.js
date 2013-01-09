@@ -11,6 +11,7 @@ Telnet.prototype._isConnected = false;
 Telnet.prototype._abDataToSend = null;
 Telnet.prototype._strDataToSend = null;
 Telnet.prototype._consoleFnc = null;
+Telnet.prototype._objSocketInfo = null;
 
 /**
   * Converts an array buffer to a string
@@ -57,13 +58,19 @@ Telnet.prototype._writePlainText = function(textToSend) {
 };
 
 Telnet.prototype._onReadCompletedCallback = function(readInfo) {
+  if (typeof(this._consoleFnc) == "function") {
+    this._consoleFnc("Successfully read " + readInfo.resultCode + " bytes of data");
+  }
+
   var receiveString = function(str) {
-  console.log(str);
     if (typeof(this._consoleFnc) == "function") {
       this._consoleFnc(str);
     }
   };
-  this._arrayBufferToString(readInfo.data, receiveString.bind(this));
+
+  if (readInfo.resultCode > 0) {
+     this._arrayBufferToString(readInfo.data, receiveString.bind(this));
+  }
 };
 
 Telnet.prototype._read = function() {
@@ -71,15 +78,27 @@ Telnet.prototype._read = function() {
 };
 
 Telnet.prototype._onWriteCompleteCallback = function(writeInfo) {
-  this._read();
+   if (typeof(this._consoleFnc) == "function") {
+     this._consoleFnc("Successfully sent " + writeInfo.bytesWritten + " bytes of data");
+   }
+   this._read();
 };
 
 Telnet.prototype._write = function() {
+   if (typeof(this._consoleFnc) == "function") {
+     this._consoleFnc("Prepared to send " + this._abDataToSend.byteLength + " bytes of data");
+   }
   chrome.socket.write(this._socketId, this._abDataToSend, this._onWriteCompleteCallback.bind(this));
 };
 
 Telnet.prototype._onConnectedCallback = function() {
    this._isConnected = true;
+   this._objSocketInfo = new SocketInfo(this._socketId);
+   if (typeof(this._consoleFnc) == "function") {
+     this._consoleFnc("TCP connection with " + this._host + " on port " + this._port + " established");
+     this._objSocketInfo.setConsoleFunction(this._consoleFnc);
+     this._objSocketInfo.printSocketInfo();
+   }
    var receiveArrayBuffer = function(ab) {
       this._abDataToSend = ab;
       this._write();

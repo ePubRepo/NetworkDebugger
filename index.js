@@ -8,6 +8,14 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('gDnsBtn').addEventListener('click', gDnsBtnClick);
   document.getElementById('oDnsBtn').addEventListener('click', oDnsBtnClick);
   document.getElementById('l3DnsBtn').addEventListener('click', l3DnsBtnClick);
+
+  // add listeners to more info
+  document.getElementById('networkInterfaceInformationBtn').addEventListener('click', networkInterfaceInformationBtnClick);
+
+  // add listeners to console control
+  document.getElementById('consoleClearBtn').addEventListener('click', consoleClearBtnBtnClick);
+  document.getElementById('consoleCopyBtn').addEventListener('click', consoleCopyBtnBtnClick);
+
 });
 
 DNSInputHelper = function() {
@@ -36,7 +44,10 @@ DNSInputHelper.prototype.getRecordType = function() {
 };
 
 function ndbConsole(outStr) {
-   document.getElementById("console").value = outStr;
+   var now = new Date();
+   var strDate = now.getUTCFullYear() + "-" + (now.getUTCMonth() + 1) + "-" + now.getUTCDate() + " " + now.getUTCHours() + ":" + now.getUTCMinutes() + ":" + now.getUTCSeconds() + "." + now.getUTCMilliseconds() + " UTC";
+   var strToAppend = strDate + "\r\n" + outStr + "\r\n\r\n";
+   document.getElementById("console").value += strToAppend;
 }
 
 function l3DnsBtnClick() {
@@ -85,4 +96,19 @@ function mHttpBtnClick() {
    objTelnet.setConsoleFunction(ndbConsole);
    objTelnet.setPlainTextDataToSend("GET / HTTP/1.1\r\nHost: mail.google.com\r\n\r\n");
    objTelnet._createSocket();
+}
+
+function consoleCopyBtnBtnClick() {
+   document.getElementById("console").select();
+   document.execCommand("Copy");
+}
+
+function consoleClearBtnBtnClick() {
+   document.getElementById("console").value = ""; 
+}
+
+function networkInterfaceInformationBtnClick() {
+   var nicInfo = new NetworkInterfaceInformation();
+   nicInfo.setConsoleFunction(ndbConsole);
+   nicInfo.getNicInformation();
 }

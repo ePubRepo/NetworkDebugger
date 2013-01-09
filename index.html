@@ -8,6 +8,8 @@
     <script type="text/javascript" src="quick-dns.js"></script>
     <script type="text/javascript" src="index.js"></script>
     <script type="text/javascript" src="telnet.js"></script>
+    <script type="text/javascript" src="socketinfo.js"></script>
+    <script type="text/javascript" src="networkinterfaceinformation.js"></script>
 </head>
 <body>
 <!-- Page Top -->
@@ -32,7 +34,8 @@
 </div>
 
 <div id="right">
-<div class="column-header">Har Files</div>
+<div class="column-header">More</div>
+<input type="button" class="button" value="Interface Information" id="networkInterfaceInformationBtn" />
 </div>
 
 <div id="middle">
@@ -54,6 +57,8 @@
 
 <div class="center-container">
 <textarea id="console" readonly="readonly"></textarea>
+<input type="button" class="button" value="Clear" id="consoleClearBtn" />
+<input type="button" class="button" value="Copy" id="consoleCopyBtn" />
 </div>
 </body>
 </html>
