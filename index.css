@@ -67,3 +67,18 @@ body {
 .button-disabled {
    background-color: #BAB8B9;
 }
+
+.textbox {
+   border: 1px solid #4D90FE;
+   padding: 5px 10px;
+   margin-right: 5px;
+}
+
+.textbox:focus {
+   outline: 0px;
+   outline-offset: 0px;	
+
+}
+
+.select {
+}

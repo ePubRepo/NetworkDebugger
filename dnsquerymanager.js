@@ -27,7 +27,7 @@ DNSQueryManager.prototype.setConsoleFunction = function(fnc) {
    this._consoleFnc = fnc;
 };
 
-DNSQueryManager.prototype.getFormattedHeader = function() {
+DNSQueryManager.prototype._getFormattedHeader = function() {
    if (this._isRecursionDesired) {
       // pass hex value 100 as flag since it corresponds to "00000000100000000",
       // which sets the proper bit for recursion
@@ -44,13 +44,19 @@ DNSQueryManager.prototype.sendRequest = function() {
          this._socketInfo.setConsoleFunction(this._consoleFnc);
          this._socketInfo.printSocketInfo();
       }
-console.log("sending request");
+
+      var packetHeader = this._getFormattedHeader();
+      var packet = new DNSPacket(packetHeader);
+      packet.push('qd', new DNSRecord(this._hostname, this._recordTypeNum, 1));
+      var raw = packet.serialize();
+
       chrome.socket.write(this._socketId, raw, function(writeInfo) {
          if (writeInfo.bytesWritten != raw.byteLength) {
-            this.callback_('could not write DNS packet on: ' + address);
+            this._consoleFnc("Error writing DNS packet.");
+         } else {
+            this._consoleFnc("Successfully sent " + writeInfo.bytesWritten + " bytes in a DNS packet");
          }
-          console.log('Wrote Bytes: ' + writeInfo.bytesWritten);
-      });
+      }.bind(this));
 
    }.bind(this);
 
