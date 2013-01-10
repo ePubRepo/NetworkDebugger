@@ -50,13 +50,20 @@ body {
 }
 
 .button {
-   background-color: #4D90FE;
-   border: 1px solid #3079ED;
    color: white;
    font-weight: bold;
    -webkit-border-radius: 2px;
    border-radius: 2px;
    -webkit-transition: all 0.218s;
    transition: all 0.218s;
+}
+
+.button-enabled {
+   background-color: #4D90FE;
+   border: 1px solid #3079ED;
    cursor: pointer;
+}
+
+.button-disabled {
+   background-color: #BAB8B9;
 }

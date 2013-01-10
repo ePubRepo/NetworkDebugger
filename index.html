@@ -24,24 +24,24 @@
 <div class="center-container">
 <div id="left">
 <div class="column-header">Telnet Tests</div>
-<input type="button" class="button" value="google.com HTTP" id="gHttpBtn" />
-<input type="button" class="button" value="google.com HTTPS" id="gHttpsBtn" />
-<input type="button" class="button" value="mail.google.com HTTP" id="mHttpBtn" />
-<input type="button" class="button" value="mail.google.com HTTPS" id="mHttspBtn" />
-<input type="button" class="button" value="drive.google.com HTTP" id="dHttpBtn" />
-<input type="button" class="button" value="drive.google.com HTTPS" id="dHttpsBtn" />
-<input type="button" class="button" value="aspmx.l.google.com SMTP" id="aspmxBtn" />
-<input type="button" class="button" value="smtp.gmail.com TLS" id="smtpBtn" />
+<input type="button" class="button button-enabled" value="google.com HTTP" id="gHttpBtn" />
+<input type="button" class="button button-disabled" value="google.com HTTPS" id="gHttpsBtn" />
+<input type="button" class="button button-enabled" value="mail.google.com HTTP" id="mHttpBtn" />
+<input type="button" class="button button-disabled" value="mail.google.com HTTPS" id="mHttspBtn" />
+<input type="button" class="button button-enabled" value="drive.google.com HTTP" id="dHttpBtn" />
+<input type="button" class="button button-disabled" value="drive.google.com HTTPS" id="dHttpsBtn" />
+<input type="button" class="button button-disabled" value="aspmx.l.google.com SMTP" id="aspmxBtn" />
+<input type="button" class="button button-disabled" value="smtp.gmail.com TLS" id="smtpBtn" />
 </div>
 
 <div id="right">
 <div class="column-header">More</div>
-<input type="button" class="button" value="Interface Information" id="networkInterfaceInformationBtn" />
+<input type="button" class="button button-enabled" value="Interface Information" id="networkInterfaceInformationBtn" />
 </div>
 
 <div id="middle">
 <div class="column-header">DNS Tests</div>
-<input type="text" value="Hostname" id="dnsHostname" />
+<input type="text" value="Hostname" id="dnsHostname" size="25" />
 <select id="dnsRecordType">
 <option>AAAA</option>
 <option>A</option>
@@ -49,17 +49,17 @@
 <option>TXT</option>
 </select>
 <br />
-<input type="button" class="button" value="Google DNS" id="gDnsBtn" />
-<input type="button" class="button" value="Level 3 DNS" id="l3DnsBtn" />
-<input type="button" class="button" value="Open DNS" id="oDnsBtn" />
+<input type="button" class="button button-enabled" value="Google DNS" id="gDnsBtn" />
+<input type="button" class="button button-enabled" value="Level 3 DNS" id="l3DnsBtn" />
+<input type="button" class="button button-enabled" value="Open DNS" id="oDnsBtn" />
 </div>
 
 </div>
 
 <div class="center-container">
 <textarea id="console" readonly="readonly"></textarea>
-<input type="button" class="button" value="Clear" id="consoleClearBtn" />
-<input type="button" class="button" value="Copy" id="consoleCopyBtn" />
+<input type="button" class="button button-enabled" value="Clear" id="consoleClearBtn" />
+<input type="button" class="button button-enabled" value="Copy" id="consoleCopyBtn" />
 </div>
 </body>
 </html>
