@@ -52,27 +52,26 @@ DataWriter.prototype.name = function(v, opt_ref) {
 
 var ResponseLabelPointerManager = function(arg) {
     if (arg instanceof Uint8Array) {
-        ResponseLabelPointerManager.view_ = arg;
+        this.view_ = arg;
     } else {
-        ResponseLabelPointerManager.view_ = new Uint8Array(arg);
+        this.view_ = new Uint8Array(arg);
     }
-    console.log("Response Label Pointer Manager Initiated... Has " + ResponseLabelPointerManager.view_.byteLength + " bytes");
+    console.log("Response Label Pointer Manager Initiated... Has " + this.view_.byteLength + " bytes");
 };
 
-ResponseLabelPointerManager.getNameFromReference = function(ref) {
+ResponseLabelPointerManager.prototype.getNameFromReference = function(ref) {
     console.log("Request to Get Name Starting at Offset Byte: " + ref);
     
     // Array Buffer containing from the beginning offset to the end
-    var subArrayBuffer = ResponseLabelPointerManager.view_.subarray(ref);
+    var subArrayBuffer = this.view_.subarray(ref);
     var subDataConsumer = new DataConsumer(subArrayBuffer);
     
-    var subName = subDataConsumer.name();
+    var subName = subDataConsumer.name(this);
     console.log("Name at Offset: " + subName);
     return subName;
 };
 
-ResponseLabelPointerManager.loc_ = 0;
-ResponseLabelPointerManager.view_ = 0;
+ResponseLabelPointerManager.prototype.view_ = 0;
 
 /**
  * DataConsumer consumes data from an ArrayBuffer.
@@ -131,7 +130,7 @@ DataConsumer.prototype.getTotalBytes = function() {
 };
 
 DataConsumer.prototype.parseDataSection = function(recordTypeNum) {
-  var nameTxt = "";
+  var dataSectionTxt = "";
   console.log("DataConsumer.parseDataSection operating on " + this.getTotalBytes() + " total bytes for record of type " + recordTypeNum);
   console.log("DNS Record Type to Parse Data Section of: " + recordTypeNum);
   switch (recordTypeNum) {
@@ -140,25 +139,25 @@ DataConsumer.prototype.parseDataSection = function(recordTypeNum) {
        while (!this.isEOF()) {
          arrOctect.push(this.byte());
        }
-       nameTxt = arrOctect.join(".");
+       dataSectionTxt = arrOctect.join(".");
        break;
      case 5:
        while (!this.isEOF()) {
          var nextByte = this.byte();
          var nextChar = String.fromCharCode(nextByte);
          console.log("next byte: " + nextByte + " -- next char: " + nextChar);
-         nameTxt += nextChar;
+         dataSectionTxt += nextChar;
        }
        break;
   }
-  return nameTxt;
+  return dataSectionTxt;
 };
 
 /**
  * Consumes a DNS name, which will either finish with a NULL byte or a suffix
  * reference (i.e., 0xc0 <ref>).
  */
-DataConsumer.prototype.name = function() {
+DataConsumer.prototype.name = function(lblPtManager) {
   console.log(this);
   var parts = [];
   for (;;) {
@@ -170,12 +169,16 @@ DataConsumer.prototype.name = function() {
       console.log("Quitting Read Part of DataConsumer.name() Function");
       break;
     } else if (len == 0xc0) {
+      // TODO: It is technically only the high order two bits of the 16 bit
+      // section that need to be ones... a label could be very large, so
+      // checking against 0xc0 isn't 100% safe
+        
       // TODO: This indicates a pointer to another valid name inside the
       // DNSPacket, and is always a suffix: we're at the end of the name.
       // We should probably hold onto this value instead of discarding it.
       var ref = this.byte();
       console.log("Pointer to Valid Name: " + ref);
-      var nameSubstitution = ResponseLabelPointerManager.getNameFromReference(ref);
+      var nameSubstitution = lblPtManager.getNameFromReference(ref);
       parts.push(nameSubstitution);
       break;
     }
@@ -218,7 +221,7 @@ var DNSPacket = function(opt_flags) {
  * Read in raw binary data from the socket and create a new packet.
  */
 DNSPacket.parse = function(buffer) {
-  ResponseLabelPointerManager(buffer);
+  var lblPointManager = new ResponseLabelPointerManager(buffer);
   var consumer = new DataConsumer(buffer);
 
   var firstTwoBytes = consumer.short();
@@ -258,7 +261,7 @@ DNSPacket.parse = function(buffer) {
   for (var i = 0; i < count['qd']; ++i) {
         console.log("About to Parse DNS Record Name... Total Read Bytes: " + consumer.getBytesRead());
     var part = new DNSRecord(
-        consumer.name(),   // name
+        consumer.name(lblPointManager),   // name
         consumer.short(),  // type
         consumer.short()); // class
     packet.push('qd', part);
@@ -270,7 +273,7 @@ DNSPacket.parse = function(buffer) {
   ['an', 'ns', 'ar'].forEach(function(section) {
     for (var i = 0; i < count[section]; ++i) {
       console.log(" * Parsing Starting for new DNSRecord, Total Read Bytes: " + consumer.getBytesRead());
-      var recName = consumer.name();
+      var recName = consumer.name(lblPointManager);
       var recType = consumer.short(); // type
       var recClass = consumer.short(); // class
       var recTTL = consumer.long(); // TTL
