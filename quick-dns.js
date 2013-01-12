@@ -50,6 +50,30 @@ DataWriter.prototype.name = function(v, opt_ref) {
   return this;
 };
 
+var ResponseLabelPointerManager = function(arg) {
+    if (arg instanceof Uint8Array) {
+        ResponseLabelPointerManager.view_ = arg;
+    } else {
+        ResponseLabelPointerManager.view_ = new Uint8Array(arg);
+    }
+    console.log("Response Label Pointer Manager Initiated... Has " + ResponseLabelPointerManager.view_.byteLength + " bytes");
+};
+
+ResponseLabelPointerManager.getNameFromReference = function(ref) {
+    console.log("Request to Get Name Starting at Offset Byte: " + ref);
+    
+    // Array Buffer containing from the beginning offset to the end
+    var subArrayBuffer = ResponseLabelPointerManager.view_.subarray(ref);
+    var subDataConsumer = new DataConsumer(subArrayBuffer);
+    
+    var subName = subDataConsumer.name();
+    console.log("Name at Offset: " + subName);
+    return subName;
+};
+
+ResponseLabelPointerManager.loc_ = 0;
+ResponseLabelPointerManager.view_ = 0;
+
 /**
  * DataConsumer consumes data from an ArrayBuffer.
  *
@@ -140,8 +164,8 @@ DataConsumer.prototype.name = function() {
   for (;;) {
     console.log("DataConsumer.name() - Begin - Bytes Read: " + this.getBytesRead() + " of total " + this.getTotalBytes());
     var len = this.byte();
-    console.log("Expected Length of Name: " + len);
-    console.log("Bytes Read: " + this.getBytesRead());
+ 
+    console.log("Length/Label Read - Total Bytes Read: " + this.getBytesRead());
     if (!len) {
       console.log("Quitting Read Part of DataConsumer.name() Function");
       break;
@@ -151,8 +175,12 @@ DataConsumer.prototype.name = function() {
       // We should probably hold onto this value instead of discarding it.
       var ref = this.byte();
       console.log("Pointer to Valid Name: " + ref);
+      var nameSubstitution = ResponseLabelPointerManager.getNameFromReference(ref);
+      parts.push(nameSubstitution);
       break;
     }
+    
+    console.log("Expected Length of Name: " + len);
 
     // Otherwise, consume a string!
     var v = '';
@@ -190,6 +218,7 @@ var DNSPacket = function(opt_flags) {
  * Read in raw binary data from the socket and create a new packet.
  */
 DNSPacket.parse = function(buffer) {
+  ResponseLabelPointerManager(buffer);
   var consumer = new DataConsumer(buffer);
 
   var firstTwoBytes = consumer.short();
@@ -203,7 +232,7 @@ DNSPacket.parse = function(buffer) {
   // Most DNS servers will return a UDP packet such that 
   // the value of flags is something like "33152"
   // (flags will be an integer decimal)
-  // when "33152" is converted to a decimal, the value is:
+  // when "33152" is converted to binary, the value is:
   // "1000000110000000" This is 16 bits or 2 bytes
   var flags = consumer.short();
 
@@ -241,13 +270,23 @@ DNSPacket.parse = function(buffer) {
   ['an', 'ns', 'ar'].forEach(function(section) {
     for (var i = 0; i < count[section]; ++i) {
       console.log(" * Parsing Starting for new DNSRecord, Total Read Bytes: " + consumer.getBytesRead());
+      var recName = consumer.name();
+      var recType = consumer.short(); // type
+      var recClass = consumer.short(); // class
+      var recTTL = consumer.long(); // TTL
+      var dataLength = consumer.short(); // resource data length
       var part = new DNSRecord(
-          consumer.name(),
-          consumer.short(), // type
-          consumer.short(), // class
-          consumer.long(),  // ttl
-          consumer.slice(consumer.short()));
+          recName,
+          recType,
+          recClass,
+          recTTL,
+          consumer.slice(dataLength));
       packet.push(section, part);
+      console.log("DNS Record Name: " + recName);
+      console.log("DNS Record Type: " + recType);
+      console.log("DNS Record Class: " + recClass);
+      console.log("DNS Record TTL: " + recTTL);
+      console.log("DNS Record Data Length: " + dataLength);
       console.log(" * Parsing Finished for new DNSRecord, Total Read Bytes: " + consumer.getBytesRead());
     }
   });
