@@ -77,6 +77,8 @@ DNSInputHelper.prototype.getRecordType = function() {
          return DNSUtil.RecordNumber.MX;
       case 'AAAA':
          return DNSUtil.RecordNumber.AAAA;
+      case 'CNAME':
+          return DNSUtil.RecordNumber.CNAME;
       default:
          return DNSUtil.RecordNumber.A;
    }
