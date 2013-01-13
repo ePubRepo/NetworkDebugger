@@ -174,7 +174,7 @@ DataConsumer.prototype.parseDataSection = function(recordTypeNum, lblPtManager) 
          var preferenceNum = this.short();
          console.log("MX Preference Number " + preferenceNum);
          dataSectionTxt += "Preference #: " + preferenceNum;
-         dataSectionTxt += this.name(lblPtManager);
+         dataSectionTxt += " // MX: " + this.name(lblPtManager);
          break;
   }
   return dataSectionTxt;
@@ -400,6 +400,8 @@ var DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
 
 DNSRecord.prototype.lblPointManager_ = null;
 
+DNSRecord.prototype.dataTxt_ = null;
+
 DNSRecord.prototype.setLblPointManager = function(obj) {
     this.lblPointManager_ = obj;
 };
@@ -407,7 +409,7 @@ DNSRecord.prototype.setLblPointManager = function(obj) {
 DNSRecord.prototype.parseDataSection = function() {
   console.log("DNSRecord.parseDataSection() called");
   console.log(this);
-  var dataTxt = new DataConsumer(this.data_).parseDataSection(this.type, this.lblPointManager_);
-  console.log("parseDataSection() for Record Returns :" + dataTxt);
-  return dataTxt;
+  this.dataTxt_ = new DataConsumer(this.data_).parseDataSection(this.type, this.lblPointManager_);
+  console.log("parseDataSection() for Record Returns :" + this.dataTxt_);
+  return this.dataTxt_;
 };
