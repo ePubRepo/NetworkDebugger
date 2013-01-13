@@ -79,6 +79,8 @@ DNSInputHelper.prototype.getRecordType = function() {
          return DNSUtil.RecordNumber.AAAA;
       case 'CNAME':
           return DNSUtil.RecordNumber.CNAME;
+      case 'TXT':
+          return DNSUtil.RecordNumber.TXT;
       default:
          return DNSUtil.RecordNumber.A;
    }
@@ -96,18 +98,22 @@ function ndbConsole(outStr) {
 function l3DnsBtnClick() {
    var inputHelper = new DNSInputHelper();
    if (inputHelper.isValidHostnameEntered()) {
-      publicUdpDnsQuery3(inputHelper.getHostnameEntered(),
+     var gDnsQuery = new DNSQueryManager(inputHelper.getHostnameEntered(),
          inputHelper.getRecordType(),
          '209.244.0.3');
+     gDnsQuery.setConsoleFunction(ndbConsole);
+     gDnsQuery.sendRequest();
    }
 }
 
 function oDnsBtnClick() {
    var inputHelper = new DNSInputHelper();
    if (inputHelper.isValidHostnameEntered()) {
-      publicUdpDnsQuery3(inputHelper.getHostnameEntered(),
+     var gDnsQuery = new DNSQueryManager(inputHelper.getHostnameEntered(),
          inputHelper.getRecordType(),
          '208.67.222.222');
+     gDnsQuery.setConsoleFunction(ndbConsole);
+     gDnsQuery.sendRequest();
    }
 }
 
