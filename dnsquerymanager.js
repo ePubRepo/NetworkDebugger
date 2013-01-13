@@ -169,8 +169,8 @@ DNSQueryManager.prototype.sendRequest = function() {
           console.log(rec);
         });
         packet.each('an', function(rec) {
-          var ptr = rec.asName();
-          console.log('asName(): ' + ptr);
+          var ptr = rec.parseDataSection();
+          console.log('parseDataSection(): ' + ptr);
           console.log('Record: ');
           console.log(rec);
         });

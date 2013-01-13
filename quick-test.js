@@ -62,8 +62,8 @@ function publicUdpDnsQuery3(hostname, recordTypeNum, dnsServer) {
              console.log(rec);
            });
            packet.each('an', function(rec) {
-             var ptr = rec.asName();
-             console.log("asName(): " + ptr);
+             var ptr = rec.parseDataSection();
+             console.log("dataSection(): " + ptr);
              console.log('Record: ');
              console.log(rec);
            });

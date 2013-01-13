@@ -129,26 +129,49 @@ DataConsumer.prototype.getTotalBytes = function() {
   return this.view_.byteLength;
 };
 
+Math.base = function base(n, to, from) {
+    return parseInt(n, from || 10).toString(to);
+}
+
 DataConsumer.prototype.parseDataSection = function(recordTypeNum) {
   var dataSectionTxt = "";
   console.log("DataConsumer.parseDataSection operating on " + this.getTotalBytes() + " total bytes for record of type " + recordTypeNum);
   console.log("DNS Record Type to Parse Data Section of: " + recordTypeNum);
   switch (recordTypeNum) {
-     case 1:
-       var arrOctect = [];
-       while (!this.isEOF()) {
-         arrOctect.push(this.byte());
-       }
-       dataSectionTxt = arrOctect.join(".");
-       break;
-     case 5:
-       while (!this.isEOF()) {
-         var nextByte = this.byte();
-         var nextChar = String.fromCharCode(nextByte);
-         console.log("next byte: " + nextByte + " -- next char: " + nextChar);
-         dataSectionTxt += nextChar;
-       }
-       break;
+     case DNSUtil.RecordNumber.A:
+         var arrOctect = [];
+         while (!this.isEOF()) {
+             arrOctect.push(this.byte());
+             }
+         dataSectionTxt = arrOctect.join(".");
+         break;
+     case DNSUtil.RecordNumber.AAAA:
+         // take 16 byte data and turn it into the 16 bytes of an IPv6 address
+         var nibbleNum = 0;
+         while (!this.isEOF()) {
+             var nextByte = this.byte();
+             var nibbleADec = (nextByte & 0xf0) >> 4;
+             var nibbleAHex = Math.base(nibbleADec, 16);
+             nibbleNum++;
+             
+             var nibbleBDec = nextByte & 0x0f;
+             var nibbleBHex =  Math.base(nibbleBDec, 16);
+             nibbleNum++;
+             
+             dataSectionTxt += nibbleAHex + nibbleBHex;
+             if (nibbleNum % 4 == 0 && nibbleNum < 32) dataSectionTxt += ':'; 
+         }
+         break;
+     case DNSUtil.RecordNumber.CNAME:
+         while (!this.isEOF()) {
+             var nextByte = this.byte();
+             var nextChar = String.fromCharCode(nextByte);
+             console.log("next byte: " + nextByte + " -- next char: " + nextChar);
+             dataSectionTxt += nextChar;
+             }
+         break;
+     case DNSUtil.RecordNumber.MX:
+         break;
   }
   return dataSectionTxt;
 };
@@ -367,11 +390,11 @@ var DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
     this.ttl = opt_ttl;
     this.data_ = opt_data;
     console.log("Extra Data Supplied to DNSRecord");
-    console.log("asName() for Record Returns :" + this.asName());
+    console.log("parseDataSection() for Record Returns :" + this.parseDataSection());
   }
 };
 
-DNSRecord.prototype.asName = function() {
+DNSRecord.prototype.parseDataSection = function() {
   console.log("DNSRecord.parseDataSection() called");
   return new DataConsumer(this.data_).parseDataSection(this.type);
 };
