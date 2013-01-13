@@ -11,7 +11,8 @@ DNSUtil.RecordNumber = {
    A: 1,
    AAAA: 28,
    MX: 15,
-   CNAME: 5
+   CNAME: 5,
+   TXT: 16
 };
 
 /**
@@ -162,7 +163,8 @@ DNSQueryManager.prototype.sendRequest = function() {
         this.consoleFnc_('Received ' + readInfo.resultCode + ' byte query ' +
                 'response');
         this.serializedResponsePacket_ = readInfo.data;
-        var packet = DNSPacket.parse(readInfo.data);
+        var lblNameManager = new ResponseLabelPointerManager(readInfo.data);
+        var packet = DNSPacket.parse(readInfo.data, lblNameManager);
         console.log('Reading Packet...');
         console.log(packet);
         packet.each('qd', function(rec) {

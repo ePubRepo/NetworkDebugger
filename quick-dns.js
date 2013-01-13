@@ -133,7 +133,7 @@ Math.base = function base(n, to, from) {
     return parseInt(n, from || 10).toString(to);
 }
 
-DataConsumer.prototype.parseDataSection = function(recordTypeNum) {
+DataConsumer.prototype.parseDataSection = function(recordTypeNum, lblPtManager) {
   var dataSectionTxt = "";
   console.log("DataConsumer.parseDataSection operating on " + this.getTotalBytes() + " total bytes for record of type " + recordTypeNum);
   console.log("DNS Record Type to Parse Data Section of: " + recordTypeNum);
@@ -171,6 +171,10 @@ DataConsumer.prototype.parseDataSection = function(recordTypeNum) {
              }
          break;
      case DNSUtil.RecordNumber.MX:
+         var preferenceNum = this.short();
+         console.log("MX Preference Number " + preferenceNum);
+         dataSectionTxt += "Preference #: " + preferenceNum;
+         dataSectionTxt += this.name(lblPtManager);
          break;
   }
   return dataSectionTxt;
@@ -243,8 +247,7 @@ var DNSPacket = function(opt_flags) {
  * Parse a DNSPacket from an ArrayBuffer (or Uint8Array).
  * Read in raw binary data from the socket and create a new packet.
  */
-DNSPacket.parse = function(buffer) {
-  var lblPointManager = new ResponseLabelPointerManager(buffer);
+DNSPacket.parse = function(buffer, lblPointManager) {
   var consumer = new DataConsumer(buffer);
 
   var firstTwoBytes = consumer.short();
@@ -287,6 +290,7 @@ DNSPacket.parse = function(buffer) {
         consumer.name(lblPointManager),   // name
         consumer.short(),  // type
         consumer.short()); // class
+    part.setLblPointManager(lblPointManager); // set label point manager so individual record has access to entire response packet to reassemble names
     packet.push('qd', part);
   }
 
@@ -307,6 +311,7 @@ DNSPacket.parse = function(buffer) {
           recClass,
           recTTL,
           consumer.slice(dataLength));
+      part.setLblPointManager(lblPointManager); // set label point manager so individual record has access to entire response packet to reassemble names
       packet.push(section, part);
       console.log("DNS Record Name: " + recName);
       console.log("DNS Record Type: " + recType);
@@ -390,11 +395,19 @@ var DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
     this.ttl = opt_ttl;
     this.data_ = opt_data;
     console.log("Extra Data Supplied to DNSRecord");
-    console.log("parseDataSection() for Record Returns :" + this.parseDataSection());
   }
+};
+
+DNSRecord.prototype.lblPointManager_ = null;
+
+DNSRecord.prototype.setLblPointManager = function(obj) {
+    this.lblPointManager_ = obj;
 };
 
 DNSRecord.prototype.parseDataSection = function() {
   console.log("DNSRecord.parseDataSection() called");
-  return new DataConsumer(this.data_).parseDataSection(this.type);
+  console.log(this);
+  var dataTxt = new DataConsumer(this.data_).parseDataSection(this.type, this.lblPointManager_);
+  console.log("parseDataSection() for Record Returns :" + dataTxt);
+  return dataTxt;
 };
