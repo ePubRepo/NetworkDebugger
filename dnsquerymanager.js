@@ -129,6 +129,14 @@ DNSQueryManager.prototype.getFormattedHeader_ = function() {
  */
 DNSQueryManager.prototype.sendRequest = function() {
     /**
+     * Perform clean up operation on the socket, such as closing it.
+     */
+    function cleanUp_() {
+        chrome.socket.destroy(this.socketId_);
+        this.consoleFnc_('Socket closed');        
+    };
+    
+    /**
      * @param {ReadInfo} readInfo Information about data read over the socket.
      * @this {DNSQueryManager}
      * @see http://developer.chrome.com/apps/socket.html
@@ -158,6 +166,8 @@ DNSQueryManager.prototype.sendRequest = function() {
         packet.each('ns', function(dnsPacket) {
           console.log(dnsPacket);
         });
+        
+        cleanUp_.apply(this);
     };
 
     /**
