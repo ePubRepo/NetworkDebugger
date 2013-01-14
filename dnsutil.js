@@ -1,0 +1,42 @@
+/**
+ * Static helper class for DNS information.
+ */
+DNSUtil = function() {};
+
+/**
+ * Enum for DNS record type.
+ * @enum {number}
+ */
+DNSUtil.RecordNumber = {
+   A: 1,
+   AAAA: 28,
+   MX: 15,
+   CNAME: 5,
+   TXT: 16
+};
+
+/**
+ * Static function to return the DNS record type number.
+ * @param {int} num DNS record type number.
+ * @return {string} The DNS record type as a string.
+ */
+DNSUtil.getRecordTypeNameByRecordTypeNum = function(num) {
+   switch (num) {
+      case DNSUtil.RecordNumber.A:
+         return 'A';
+         break;
+
+      case DNSUtil.RecordNumber.AAAA:
+         return 'AAAA';
+         break;
+
+      case DNSUtil.RecordNumber.MX:
+         return 'MX';
+         break;
+
+      case DNSUtil.RecordNumber.CNAME:
+         return 'CNAME';
+         break;
+   }
+};
+
