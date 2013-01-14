@@ -341,6 +341,7 @@ DNSPacket.prototype.each = function(section) {
     filter = arguments[1];
     call = arguments[2];
   }
+  
   this.data_[section].forEach(function(rec) {
     if (!filter || rec.type == filter) {
       call(rec);
@@ -381,6 +382,9 @@ DNSPacket.prototype.serialize = function() {
  * AUTHORITY, or ADDITIONAL record. Note that QUESTION records are special,
  * and do not have ttl or data.
  *
+ * @param {string} name Name part of the DNS record.
+ * @param {integer} type DNS record type.
+ * @param {integer} cl Class.
  * @param opt_data optional Uint8Array containing extra data
  */
 var DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
@@ -392,20 +396,47 @@ var DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
 
   this.isQD = (arguments.length == 3);
   if (!this.isQD) {
-    this.ttl = opt_ttl;
+    this.ttl_ = opt_ttl;
     this.data_ = opt_data;
     console.log("Extra Data Supplied to DNSRecord");
   }
 };
 
+/**
+ * Name component of DNS packet.
+ * @type {string}
+ */
+DNSRecord.prototype.name_ = null;
+
+/**
+ * Type of DNS record as a number.
+ * @type {integer}
+ * @see Section 3.2.2. of RFC 1035.
+ */
+DNSRecord.prototype.type_ = null;
+
+/**
+ * @type {ResponseLabelPointerManager}
+ */
 DNSRecord.prototype.lblPointManager_ = null;
 
+/**
+ * Information stored in data section of packet.
+ * @type {string}
+ */
 DNSRecord.prototype.dataTxt_ = null;
 
+/**
+ * @param {ResponseLabelPointerManager} obj Label manager to help reassemble
+ *                                          DNS packet data.
+ */
 DNSRecord.prototype.setLblPointManager = function(obj) {
     this.lblPointManager_ = obj;
 };
 
+/**
+ * Parse the data section of the DNS record.
+ */
 DNSRecord.prototype.parseDataSection = function() {
   console.log("DNSRecord.parseDataSection() called");
   console.log(this);
