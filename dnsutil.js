@@ -16,6 +16,17 @@ DNSUtil.RecordNumber = {
 };
 
 /**
+ * Enum for section of the DNS packet (i.e., type of resource record).
+ * @enum {string}
+ */
+DNSUtil.PacketSection = {
+    QUESTION: 'qd',
+    ANSWER: 'an',
+    AUTHORITY: 'ns',
+    ADDITIONAL: 'ar'
+};
+
+/**
  * Static function to return the DNS record type number.
  * @param {int} num DNS record type number.
  * @return {string} The DNS record type as a string.
@@ -37,6 +48,10 @@ DNSUtil.getRecordTypeNameByRecordTypeNum = function(num) {
       case DNSUtil.RecordNumber.CNAME:
          return 'CNAME';
          break;
+
+      case DNSUtil.RecordNumber.TXT:
+          return 'TXT';
+          break;
    }
 };
 
