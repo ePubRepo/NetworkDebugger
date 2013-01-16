@@ -1,4 +1,4 @@
-DNSPacketSerializerir = function() {
+DNSPacketSerializerir = function(dnsPacket) {
 
 };
 
@@ -7,18 +7,18 @@ DNSPacketSerializerir = function() {
  */
 DNSPacket.prototype.serialize = function() {
   var out = new DataWriter();
-  var s = [DNSUtil.PacketSection.QUESTION,
+  var arrPacketSections = [DNSUtil.PacketSection.QUESTION,
            DNSUtil.PacketSection.ANSWER,
            DNSUtil.PacketSection.AUTHORITY,
            DNSUtil.PacketSection.ADDITIONAL];
 
   out.short(0).short(this.flags_);
 
-  s.forEach(function(packetSection) {
+  arrPacketSections.forEach(function(packetSection) {
     out.short(this.data_[packetSection].length);
   }.bind(this));
 
-  s.forEach(function(packetSection) {
+  arrPacketSections.forEach(function(packetSection) {
     this.data_[packetSection].forEach(function(dnsRecord) {
       out.name(dnsRecord.name_).short(dnsRecord.type_).short(dnsRecord.cl_);
 
