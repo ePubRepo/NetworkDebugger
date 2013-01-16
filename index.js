@@ -2,8 +2,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // add listeners for tcp telnet tests
   document.getElementById('gHttpBtn').addEventListener('click',
       gHttpBtnClick);
-  document.getElementById('gHttpsBtn').addEventListener('click',
-      gHttpsBtnClick);
   document.getElementById('mHttpBtn').addEventListener('click',
       mHttpBtnClick);
   document.getElementById('dHttpBtn').addEventListener('click',
@@ -133,7 +131,7 @@ function gHttpBtnClick() {
    objTelnet.setConsoleFunction(ndbConsole);
    objTelnet.
       setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n');
-   objTelnet._createSocket();
+   objTelnet.createSocket_();
 }
 
 function gHttpsBtnClick() {
@@ -141,7 +139,7 @@ function gHttpsBtnClick() {
    objTelnet.setConsoleFunction(ndbConsole);
    objTelnet.
       setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n');
-   objTelnet._createSocket();
+   objTelnet.createSocket_();
 }
 
 function mHttpBtnClick() {
@@ -149,7 +147,7 @@ function mHttpBtnClick() {
    objTelnet.setConsoleFunction(ndbConsole);
    objTelnet.
       setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: mail.google.com\r\n\r\n');
-   objTelnet._createSocket();
+   objTelnet.createSocket_();
 }
 
 function dHttpBtnClick() {
@@ -157,7 +155,7 @@ function dHttpBtnClick() {
    objTelnet.setConsoleFunction(ndbConsole);
    objTelnet.
      setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: drive.google.com\r\n\r\n');
-   objTelnet._createSocket();
+   objTelnet.createSocket_();
 }
 
 function consoleCopyBtnBtnClick() {

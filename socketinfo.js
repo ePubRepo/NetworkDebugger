@@ -36,7 +36,7 @@ SocketInfo.prototype.printSocketInfo = function() {
    var parseSocketInfo = function(socketInfo) {
      var strSocketInfo = 'A ' + socketInfo.socketType + ' connection from ' +
         socketInfo.localAddress + ':' + socketInfo.localPort + ' to ' +
-        socketInfo.peerAddress + ':' + socketInfo.peerPort + ' exists';
+        socketInfo.peerAddress + ':' + socketInfo.peerPort + ' now exists';
 
      if (typeof(this.consoleFnc_) == 'function') {
          this.consoleFnc_(strSocketInfo);

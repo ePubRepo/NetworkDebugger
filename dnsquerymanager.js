@@ -9,6 +9,8 @@ DNSQueryManager = function(hostname, recordTypeNum, dnsServer) {
    this.hostname_ = hostname;
    this.recordTypeNum_ = recordTypeNum;
    this.dnsServer_ = dnsServer;
+
+   this.printResponseFnc_ = this.defaultPrintResponse;
 };
 
 /**
@@ -77,7 +79,7 @@ DNSQueryManager.prototype.socketInfo_ = null;
  * @type {DNSPacket}
  * @private
  */
-DNSQueryManager.prototype.objQueryPacket_ = null;
+DNSQueryManager.prototype.queryPacket_ = null;
 
 /**
  * Serialized DNS packet data to send as a DNS query.
@@ -92,6 +94,45 @@ DNSQueryManager.prototype.serializedQueryPacket_ = null;
  * @private
  */
 DNSQueryManager.prototype.serializedResponsePacket_ = null;
+
+/**
+ * DNS packet received in response to the DNS query.
+ * @type {DNSPacket}
+ * @private
+ */
+DNSQueryManager.prototype.responsePacket_ = null;
+
+/**
+ * Print the default packet response.
+ */
+DNSQueryManager.prototype.defaultPrintResponse = function() {
+    // parse question section
+    this.responsePacket_.each('qd', function(dnsPacket) {}.bind(this));
+
+    // parse answer section
+    var str = '';
+    this.responsePacket_.each('an', function(dnsPacket) {
+        dnsPacket.parseDataSection();
+        str += DNSUtil.getRecordTypeNameByRecordTypeNum(
+                                     dnsPacket.getType()) +
+           ' record with name ' +
+           dnsPacket.getName() + ' and TTL ' + dnsPacket.getTTL() +
+           ' and data section of ' + dnsPacket.getDataText() + '\r\n';
+    }.bind(this));
+    this.consoleFnc_(str);
+
+    // parse authority section
+    this.responsePacket_.each('ns', function(dnsPacket) {
+      console.log(dnsPacket);
+    });
+};
+
+/**
+ * Function to print parsed DNS response packet.
+ * @type {function}
+ * @private
+ */
+DNSQueryManager.prototype.printResponseFnc_ = null;
 
 /**
  * Set whether to perform a recursive DNS query.
@@ -130,12 +171,14 @@ DNSQueryManager.prototype.getFormattedHeader_ = function() {
 DNSQueryManager.prototype.sendRequest = function() {
     /**
      * Perform clean up operation on the socket, such as closing it.
+     * @this {DNSQueryManager}
      */
     function cleanUp_() {
         chrome.socket.destroy(this.socketId_);
-        this.consoleFnc_('Socket closed');        
+        this.consoleFnc_('Socket closed');
+        this.printResponseFnc_();
     };
-    
+
     /**
      * @param {ReadInfo} readInfo Information about data read over the socket.
      * @this {DNSQueryManager}
@@ -149,24 +192,12 @@ DNSQueryManager.prototype.sendRequest = function() {
 
         var lblNameManager = new ResponseLabelPointerManager(readInfo.data);
         var packet = DNSPacket.parse(readInfo.data, lblNameManager);
+        this.responsePacket_ = packet;
 
-        // parse question section
-        packet.each('qd', function(dnsPacket) {
-          console.log(dnsPacket);
-        });
+        this.consoleFnc_('Query response contains ' +
+                this.responsePacket_.getAnswerRecordCount() + ' answer ' +
+                'records');
 
-        // parse answer section
-        packet.each('an', function(dnsPacket) {
-          var ptr = dnsPacket.parseDataSection();
-          console.log('parseDataSection(): ' + ptr);
-          console.log(dnsPacket);
-        });
-
-        // parse authority section
-        packet.each('ns', function(dnsPacket) {
-          console.log(dnsPacket);
-        });
-        
         cleanUp_.apply(this);
     };
 
@@ -204,17 +235,18 @@ DNSQueryManager.prototype.sendRequest = function() {
     */
    function sendData_() {
       var packetHeader = this.getFormattedHeader_();
-      this.objQueryPacket_ = new DNSPacket(packetHeader);
-      this.objQueryPacket_.push('qd', new DNSRecord(this.hostname_,
+      this.queryPacket_ = new DNSPacket(packetHeader);
+      this.queryPacket_.push('qd', new DNSRecord(this.hostname_,
                                       this.recordTypeNum_,
                                       1));
 
       // take data and serialize it into binary as an ArrayBuffer to send
-      this.serializedQueryPacket_ = this.objQueryPacket_.serialize();
+      this.serializedQueryPacket_ = this.queryPacket_.serialize();
 
       this.consoleFnc_('Preparing to query server ' + this.dnsServer_ + ' ' +
-              'for record type ' + this.recordTypeNum_ + ' with hostname ' +
-              this.hostname_);
+              'for record type ' +
+              DNSUtil.getRecordTypeNameByRecordTypeNum(this.recordTypeNum_) +
+              ' with hostname ' + this.hostname_);
 
       chrome.socket.write(this.socketId_,
                           this.serializedQueryPacket_,

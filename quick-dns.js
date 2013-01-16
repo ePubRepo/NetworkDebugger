@@ -328,6 +328,10 @@ DNSPacket.parse = function(buffer, lblPointManager) {
   return packet;
 };
 
+DNSPacket.prototype.getAnswerRecordCount = function() {
+    return this.data_['an'].length;
+};
+
 DNSPacket.prototype.push = function(section, record) {
   this.data_[section].push(record);
 };
@@ -363,8 +367,8 @@ DNSPacket.prototype.serialize = function() {
   }.bind(this));
 
   s.forEach(function(section) {
-    this.data_[section].forEach(function(rec) {
-      out.name(rec.name).short(rec.type).short(rec.cl);
+    this.data_[section].forEach(function(dnsRecord) {
+      out.name(dnsRecord.name_).short(dnsRecord.type_).short(dnsRecord.cl_);
 
       if (section != 'qd') {
         // TODO: implement .bytes()
@@ -390,9 +394,9 @@ DNSPacket.prototype.serialize = function() {
 var DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
   console.log("DNS Record Name: " + name);
   console.log("DNS Record Type: " + type);
-  this.name = name;
-  this.type = type;
-  this.cl = cl;
+  this.name_ = name;
+  this.type_ = type;
+  this.cl_ = cl;
 
   this.isQD = (arguments.length == 3);
   if (!this.isQD) {
@@ -416,6 +420,13 @@ DNSRecord.prototype.name_ = null;
 DNSRecord.prototype.type_ = null;
 
 /**
+ * Class of DNS record as a number.
+ * @type {integer}
+ * @see Section 3.2.2. of RFC 1035.
+ */
+DNSRecord.prototype.cl_ = null;
+
+/**
  * @type {ResponseLabelPointerManager}
  */
 DNSRecord.prototype.lblPointManager_ = null;
@@ -427,6 +438,7 @@ DNSRecord.prototype.lblPointManager_ = null;
 DNSRecord.prototype.dataTxt_ = null;
 
 /**
+ * Set the label pointer manager for the DNS packet to which the record belongs.
  * @param {ResponseLabelPointerManager} obj Label manager to help reassemble
  *                                          DNS packet data.
  */
@@ -435,12 +447,44 @@ DNSRecord.prototype.setLblPointManager = function(obj) {
 };
 
 /**
+ * Obtain the DNS name of the DNS record.
+ * @return {string} DNS name.
+ */
+DNSRecord.prototype.getName = function() {
+    return this.name_;  
+};
+
+/**
+ * Obtain the DNS record type number.
+ * @return {integer} DNS record type number. 
+ */
+DNSRecord.prototype.getType = function() {
+    return this.type_;
+};
+
+/**
+ * Obtain a text processed versino of the data section.
+ * @return {string} Text representation of the data section of the DNS record.
+ */
+DNSRecord.prototype.getDataText = function() {
+    return this.dataTxt_;
+};
+
+/**
+ * Return the TTL of the DNS record.
+ * @return {int} TTL of DNS record.
+ */
+DNSRecord.prototype.getTTL = function() {
+    return this.ttl_;
+};
+
+/**
  * Parse the data section of the DNS record.
  */
 DNSRecord.prototype.parseDataSection = function() {
   console.log("DNSRecord.parseDataSection() called");
   console.log(this);
-  this.dataTxt_ = new DataConsumer(this.data_).parseDataSection(this.type, this.lblPointManager_);
+  this.dataTxt_ = new DataConsumer(this.data_).parseDataSection(this.type_, this.lblPointManager_);
   console.log("parseDataSection() for Record Returns :" + this.dataTxt_);
   return this.dataTxt_;
 };
