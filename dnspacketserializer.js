@@ -73,7 +73,6 @@ DNSPacketSerializer.prototype.serializeName = function(dnsName,
     return dnsSerializer;
 };
 
-
 /**
  * Serializer writes an object data to an ArrayBuffer.
  * @constructor
