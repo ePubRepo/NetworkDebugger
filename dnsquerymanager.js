@@ -241,7 +241,8 @@ DNSQueryManager.prototype.sendRequest = function() {
                                       1));
 
       // take data and serialize it into binary as an ArrayBuffer to send
-      this.serializedQueryPacket_ = this.queryPacket_.serialize();
+      var serializer = new DNSPacketSerializer(this.queryPacket_);
+      this.serializedQueryPacket_ = serializer.serialize();
 
       this.consoleFnc_('Preparing to query server ' + this.dnsServer_ + ' ' +
               'for record type ' +
