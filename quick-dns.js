@@ -1,27 +1,4 @@
 
-var ResponseLabelPointerManager = function(arg) {
-    if (arg instanceof Uint8Array) {
-        this.view_ = arg;
-    } else {
-        this.view_ = new Uint8Array(arg);
-    }
-    console.log("Response Label Pointer Manager Initiated... Has " + this.view_.byteLength + " bytes");
-};
-
-ResponseLabelPointerManager.prototype.getNameFromReference = function(ref) {
-    console.log("Request to Get Name Starting at Offset Byte: " + ref);
-    
-    // Array Buffer containing from the beginning offset to the end
-    var subArrayBuffer = this.view_.subarray(ref);
-    var subDataConsumer = new DataConsumer(subArrayBuffer);
-    
-    var subName = subDataConsumer.name(this);
-    console.log("Name at Offset: " + subName);
-    return subName;
-};
-
-ResponseLabelPointerManager.prototype.view_ = 0;
-
 /**
  * DataConsumer consumes data from an ArrayBuffer.
  *
@@ -78,10 +55,6 @@ DataConsumer.prototype.getTotalBytes = function() {
   return this.view_.byteLength;
 };
 
-Math.base = function base(n, to, from) {
-    return parseInt(n, from || 10).toString(to);
-}
-
 DataConsumer.prototype.parseDataSection = function(recordTypeNum, lblPtManager) {
   var dataSectionTxt = "";
   console.log("DataConsumer.parseDataSection operating on " + this.getTotalBytes() + " total bytes for record of type " + recordTypeNum);
@@ -100,11 +73,11 @@ DataConsumer.prototype.parseDataSection = function(recordTypeNum, lblPtManager) 
          while (!this.isEOF()) {
              var nextByte = this.byte();
              var nibbleADec = (nextByte & 0xf0) >> 4;
-             var nibbleAHex = Math.base(nibbleADec, 16);
+             var nibbleAHex = DNSUtil.baseConversion(nibbleADec, 16);
              nibbleNum++;
              
              var nibbleBDec = nextByte & 0x0f;
-             var nibbleBHex =  Math.base(nibbleBDec, 16);
+             var nibbleBHex =  DNSUtil.baseConversion(nibbleBDec, 16);
              nibbleNum++;
              
              dataSectionTxt += nibbleAHex + nibbleBHex;

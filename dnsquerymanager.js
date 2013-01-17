@@ -191,8 +191,9 @@ DNSQueryManager.prototype.sendRequest = function() {
         this.serializedResponsePacket_ = readInfo.data;
 
         var lblNameManager = new ResponseLabelPointerManager(readInfo.data);
-        var packet = DNSPacket.parse(readInfo.data, lblNameManager);
-        this.responsePacket_ = packet;
+        var packetDeserializer = new DNSPacketDeserializer(readInfo.data,
+                                                       lblNameManager);
+        this.responsePacket_ = packetDeserializer.getDeserializedPacket();
 
         this.consoleFnc_('Query response contains ' +
                 this.responsePacket_.getAnswerRecordCount() + ' answer ' +
