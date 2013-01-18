@@ -29,15 +29,15 @@ DNSPacket.prototype.getAnswerRecordCount = function() {
 
 /**
  * Add a DNS record to a particular section of this DNS packet.
- * @param {DNSUtil.PacketSection} Section of the DNS record.
- * @param {DNSRecord} DNS record to add to this packet.
+ * @param {DNSUtil.PacketSection} packetSection Section of the DNS record.
+ * @param {DNSRecord} dnsRecord DNS record to add to this packet.
  */
 DNSPacket.prototype.push = function(packetSection, dnsRecord) {
     this.data_[packetSection].push(dnsRecord);
 };
 
 /**
- * @param {DNSUtil.PacketSection} Section of the DNS record.
+ * @param {DNSUtil.PacketSection} packetSection Section of the DNS record.
  */
 DNSPacket.prototype.each = function(packetSection) {
   var filter = false;
@@ -48,7 +48,7 @@ DNSPacket.prototype.each = function(packetSection) {
     filter = arguments[1];
     callback = arguments[2];
   }
-  
+
   this.data_[packetSection].forEach(function(rec) {
     if (!filter || rec.type == filter) {
         callback(rec);
