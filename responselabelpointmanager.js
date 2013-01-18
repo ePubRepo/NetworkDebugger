@@ -32,9 +32,10 @@ ResponseLabelPointerManager.prototype.view_ = null;
 ResponseLabelPointerManager.prototype.getNameFromReference = function(ref) {
     // Array Buffer containing data from the beginning offset to the end
     var subArrayBuffer = this.view_.subarray(ref);
-    var subDataConsumer = new DataConsumer(subArrayBuffer);
     
-    var subName = subDataConsumer.name(this);
+    // TODO: parsing of name should probably be handeled by DNS deserializer
+    var subsectionDeserializer = new Deserializer(subArrayBuffer);
+    var subName = subsectionDeserializer.name(this);
     return subName;
 };
 

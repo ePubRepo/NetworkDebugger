@@ -36,7 +36,7 @@ DNSUtil.PacketSection = {
  *               the destination base.
  */
 DNSUtil.baseConversion = function(n, to, opt_from) {
-    return parseInt(n, from || 10).toString(to);
+    return parseInt(n, opt_from || 10).toString(to);
 };
 
 /**

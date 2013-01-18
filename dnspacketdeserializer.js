@@ -7,7 +7,7 @@
  * @constructor
  */
 DNSPacketDeserializer = function(arBuffer, lblPointManager) {
-    this.consumer_ = new DataConsumer(arBuffer);
+    this.consumer_ = new Deserializer(arBuffer);
     this.lblPointManager_ = lblPointManager;
     this.deserializePacket();
 };
@@ -94,7 +94,7 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
       }
     }.bind(this));
 
-    this.consumer_.isEOF() || console.warn('was not EOF on incoming packet');
+    this.consumer_.isEOF_() || console.warn('was not EOF on incoming packet');
     this.deserializedPacket_ = packet;
 };
 
