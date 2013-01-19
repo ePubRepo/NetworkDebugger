@@ -37,12 +37,12 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
     // "1000000110000000" This is 16 bits or 2 bytes
     var flags = this.consumer_.short();
 
-    var sectionCount = {
-            'qd': this.consumer_.short(),
-            'an': this.consumer_.short(),
-            'ns': this.consumer_.short(),
-            'ar': this.consumer_.short()
-    };
+    // determine how many DNS records will be in each section of the DNS packet
+    var sectionCount = {};
+    sectionCount[DNSUtil.PacketSection.QUESTION] = this.consumer_.short();
+    sectionCount[DNSUtil.PacketSection.ANSWER] = this.consumer_.short();
+    sectionCount[DNSUtil.PacketSection.AUTHORITY] = this.consumer_.short();
+    sectionCount[DNSUtil.PacketSection.ADDITIONAL] = this.consumer_.short();
 
     var packet = new DNSPacket(flags);
 
@@ -67,7 +67,9 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
     }
 
     // Parse the ANSWER, AUTHORITY and ADDITIONAL sections.
-    var parseSections = ['an', 'ns', 'ar'];
+    var parseSections = [DNSUtil.PacketSection.ANSWER,
+                         DNSUtil.PacketSection.AUTHORITY,
+                         DNSUtil.PacketSection.ADDITIONAL];
     parseSections.forEach(function(section) {
       for (var i = 0; i < sectionCount[section]; ++i) {
 
@@ -80,16 +82,25 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
         // obtain the length of the resource record data section
         // See RDLENGTH of Section 3.2.1 in RFC 1035.
         var dataLength = this.consumer_.short();
+        var dataSectionBinary = this.consumer_.slice(dataLength);
         var part = new DNSRecord(
             recName,
             recType,
             recClass,
             recTTL,
-            this.consumer_.slice(dataLength));
+            dataSectionBinary);
 
         // set label point manager so individual record has access to entire
         // response packet to reassemble compressed DNS names
         part.setLblPointManager(this.lblPointManager_);
+        
+        // parse data section of record and set it as part of the record
+        var dataSectionDeserializer = new Deserializer(dataSectionBinary);
+        var dataSectionStr = dataSectionDeserializer
+                           .parseDataSection(recType, this.lblPointManager_);
+        part.setData(dataSectionStr);
+        
+        // push the the record onto the DNS packet
         packet.push(section, part);
       }
     }.bind(this));

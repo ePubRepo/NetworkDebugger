@@ -116,14 +116,3 @@ DNSRecord.prototype.getTTL = function() {
 DNSRecord.prototype.setData = function(dataStr) {
    this.dataTxt_ = dataStr;
 };
-
-/**
- * Parse the data section of the DNS record.
- * @return {string} Text representation of the data section of the record.
- */
-// TODO: move to deseralizer
-DNSRecord.prototype.parseDataSection = function() {
-  this.dataTxt_ = new Deserializer(this.data_)
-     .parseDataSection(this.type_, this.lblPointManager_);
-  return this.dataTxt_;
-};

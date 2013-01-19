@@ -106,13 +106,12 @@ DNSQueryManager.prototype.responsePacket_ = null;
  * Print the default packet response.
  */
 DNSQueryManager.prototype.defaultPrintResponse = function() {
-    // parse question section
+    // represent question section
     this.responsePacket_.each('qd', function(dnsPacket) {}.bind(this));
 
-    // parse answer section
+    // represent answer section
     var str = '';
     this.responsePacket_.each('an', function(dnsPacket) {
-        dnsPacket.parseDataSection();
         str += DNSUtil.getRecordTypeNameByRecordTypeNum(
                                      dnsPacket.getType()) +
            ' record with name ' +
@@ -121,7 +120,7 @@ DNSQueryManager.prototype.defaultPrintResponse = function() {
     }.bind(this));
     this.consoleFnc_(str);
 
-    // parse authority section
+    // represent authority section
     this.responsePacket_.each('ns', function(dnsPacket) {});
 };
 
