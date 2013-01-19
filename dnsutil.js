@@ -1,30 +1,42 @@
+// Copyright 2013. All Rights Reserved.
+
+/**
+ * @fileoverview Static utility class with enums and conversion functions.
+ *
+ * @author ebeach@google.com (Eric Beach)
+ */
+
+
 /**
  * Static helper class for DNS information.
  */
 DNSUtil = function() {};
+
 
 /**
  * Enum for DNS record type.
  * @enum {number}
  */
 DNSUtil.RecordNumber = {
-   A: 1,
-   AAAA: 28,
-   MX: 15,
-   CNAME: 5,
-   TXT: 16
+  A: 1,
+  AAAA: 28,
+  MX: 15,
+  CNAME: 5,
+  TXT: 16
 };
+
 
 /**
  * Enum for section of the DNS packet (i.e., type of resource record).
  * @enum {string}
  */
 DNSUtil.PacketSection = {
-    QUESTION: 'qd',
-    ANSWER: 'an',
-    AUTHORITY: 'ns',
-    ADDITIONAL: 'ar'
+  QUESTION: 'qd',
+  ANSWER: 'an',
+  AUTHORITY: 'ns',
+  ADDITIONAL: 'ar'
 };
+
 
 /**
  * Convert a number from one base to another, often used to convert from
@@ -36,8 +48,9 @@ DNSUtil.PacketSection = {
  *               the destination base.
  */
 DNSUtil.baseConversion = function(n, to, opt_from) {
-    return parseInt(n, opt_from || 10).toString(to);
+  return parseInt(n, opt_from || 10).toString(to);
 };
+
 
 /**
  * Static function to return the DNS record type number.
@@ -45,25 +58,25 @@ DNSUtil.baseConversion = function(n, to, opt_from) {
  * @return {string} The DNS record type as a string.
  */
 DNSUtil.getRecordTypeNameByRecordTypeNum = function(num) {
-   switch (num) {
-      case DNSUtil.RecordNumber.A:
-         return 'A';
-         break;
+  switch (num) {
+    case DNSUtil.RecordNumber.A:
+      return 'A';
+      break;
 
-      case DNSUtil.RecordNumber.AAAA:
-         return 'AAAA';
-         break;
+    case DNSUtil.RecordNumber.AAAA:
+      return 'AAAA';
+      break;
 
-      case DNSUtil.RecordNumber.MX:
-         return 'MX';
-         break;
+    case DNSUtil.RecordNumber.MX:
+      return 'MX';
+      break;
 
-      case DNSUtil.RecordNumber.CNAME:
-         return 'CNAME';
-         break;
+    case DNSUtil.RecordNumber.CNAME:
+      return 'CNAME';
+      break;
 
-      case DNSUtil.RecordNumber.TXT:
-          return 'TXT';
-          break;
+    case DNSUtil.RecordNumber.TXT:
+      return 'TXT';
+      break;
    }
 };

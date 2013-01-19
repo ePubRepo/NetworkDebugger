@@ -1,3 +1,13 @@
+// Copyright 2013. All Rights Reserved.
+
+/**
+ * @fileoverview Manage the labels, references, and names in a DNS response.
+ *
+ * @author ebeach@google.com (Eric Beach)
+ */
+
+
+
 /**
  * ResponseLabelPointerManager handles DNS's name compression and labeling,
  * helping re-assemble a name with references.
@@ -8,12 +18,13 @@
  * @constructor
  */
 ResponseLabelPointerManager = function(arg) {
-    if (arg instanceof Uint8Array) {
-        this.view_ = arg;
-    } else {
-        this.view_ = new Uint8Array(arg);
-    }
+  if (arg instanceof Uint8Array) {
+    this.view_ = arg;
+  } else {
+      this.view_ = new Uint8Array(arg);
+  }
 };
+
 
 /**
  * ArrayBuffer containing the full binary data received from the socket.
@@ -21,6 +32,7 @@ ResponseLabelPointerManager = function(arg) {
  * @private
  */
 ResponseLabelPointerManager.prototype.view_ = null;
+
 
 /**
  * Obtain a reference byte offset and reassemble the DNS name living at that
@@ -30,13 +42,12 @@ ResponseLabelPointerManager.prototype.view_ = null;
  * @return {string} Reassembled DNS name.
  */
 ResponseLabelPointerManager.prototype.getNameFromReference = function(ref) {
-    // Array Buffer containing data from the beginning offset to the end
-    var subArrayBuffer = this.view_.subarray(ref);
+  // Array Buffer containing data from the beginning offset to the end
+  var subArrayBuffer = this.view_.subarray(ref);
 
-    // Reassemble name from reference in DNS packet
-    var subsectionDNSPacketDeserializer = new DNSPacketDeserializer(subArrayBuffer, this);
-    var subsectionDeserializer = new Deserializer(subArrayBuffer);
-    var subName = subsectionDNSPacketDeserializer.parseName(this, subsectionDeserializer);
-    return subName;
+  // Reassemble name from reference in DNS packet
+  var subPacketDeserializer = new DNSPacketDeserializer(subArrayBuffer, this);
+  var sectionDeserializer = new Deserializer(subArrayBuffer);
+  var subName = subPacketDeserializer.parseName(this, sectionDeserializer);
+  return subName;
 };
-

@@ -1,3 +1,11 @@
+// Copyright 2013. All Rights Reserved.
+
+/**
+ * @fileoverview Deserialize binary data.
+ *
+ * @author ebeach@google.com (Eric Beach)
+ */
+
 
 /**
  * Deserializer consumes data from an ArrayBuffer.
@@ -6,13 +14,15 @@
  * @constructor
  */
 Deserializer = function(arg) {
-    if (arg instanceof Uint8Array) {
-        this.view_ = arg;
-    } else {
-        this.view_ = new Uint8Array(arg);
-    }
-    this.loc_ = 0;
+  // TODO: cleanup based upon input type
+  if (arg instanceof Uint8Array) {
+    this.view_ = arg;
+  } else {
+    this.view_ = new Uint8Array(arg);
+  }
+  this.loc_ = 0;
 };
+
 
 /**
  * Byte number of the internal pointer used to read through the ArrayBuffer.
@@ -21,15 +31,17 @@ Deserializer = function(arg) {
  */
 Deserializer.prototype.loc_ = 0;
 
+
 /**
  * Determine whether Deserializer has read through all input data.
  * @return {boolean} Whether this DataConsumer has consumed all its data.
  * @private
  */
 Deserializer.prototype.isEOF_ = function() {
-    // check if current location, in bytes, is greater than length of data
-    return (this.loc_ >= this.view_.byteLength);
+  //check if current location, in bytes, is greater than length of data
+  return (this.loc_ >= this.view_.byteLength);
 };
+
 
 /**
  * Return a sub array starting from the current location of a specified length.
@@ -42,6 +54,7 @@ Deserializer.prototype.slice = function(length) {
   return view;
 };
 
+
 /**
  * Return the next byte of data as a decimal.
  * @return {integer} Integer representing data stored in a single byte.
@@ -52,6 +65,7 @@ Deserializer.prototype.byte_ = function() {
   return this.view_[this.loc_ - 1];
 };
 
+
 /**
  * Return the next two bytes of data as a base 10 integer.
  * @return {integer} Two bytes of data as a base 10 integer.
@@ -59,6 +73,7 @@ Deserializer.prototype.byte_ = function() {
 Deserializer.prototype.short = function() {
     return (this.byte_() << 8) + this.byte_();
 };
+
 
 /**
  * Return the next four bytes of data as a base 10 integer.
@@ -68,6 +83,7 @@ Deserializer.prototype.long = function() {
   return (this.short() << 16) + this.short();
 };
 
+
 /**
  * Return the number of bytes read this far in the process of deserializer.
  * @return {integer} Number of bytes read.
@@ -75,6 +91,7 @@ Deserializer.prototype.long = function() {
 Deserializer.prototype.getBytesRead = function() {
   return this.loc_;
 };
+
 
 /**
  * Return the total number of bytes received to parse.

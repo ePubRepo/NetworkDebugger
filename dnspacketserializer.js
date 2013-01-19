@@ -1,11 +1,22 @@
+// Copyright 2013. All Rights Reserved.
+
+/**
+ * @fileoverview Serialize a DNS packet for sending over a UDP socket.
+ *
+ * @author ebeach@google.com (Eric Beach)
+ */
+
+
+
 /**
  * Serialize a DNS packet to be sent over the socket.
  * @param {DNSPacket} dnsPacket The DNS packet to be serialized.
  * @constructor
  */
 DNSPacketSerializer = function(dnsPacket) {
-    this.dnsPacket_ = dnsPacket;
+  this.dnsPacket_ = dnsPacket;
 };
+
 
 /**
  * DNS packet to be serialized.
@@ -14,32 +25,34 @@ DNSPacketSerializer = function(dnsPacket) {
  */
 DNSPacketSerializer.prototype.dnsPacket_ = null;
 
+
 /**
  * Serialize the DNS packet.
  * @return {ArrayBuffer} Serialized DNS packet.
  */
 DNSPacketSerializer.prototype.serialize = function() {
-    var dataSerializer = new Serializer();
-    var arrPacketSections = [DNSUtil.PacketSection.QUESTION,
+  var dataSerializer = new Serializer();
+  var arrPacketSections = [DNSUtil.PacketSection.QUESTION,
              DNSUtil.PacketSection.ANSWER,
              DNSUtil.PacketSection.AUTHORITY,
              DNSUtil.PacketSection.ADDITIONAL];
 
-    dataSerializer.short(0).short(this.dnsPacket_.flags_);
+  dataSerializer.short(0).short(this.dnsPacket_.flags_);
 
-    arrPacketSections.forEach(function(packetSection) {
-        dataSerializer.short(this.dnsPacket_.data_[packetSection].length);
-    }.bind(this));
+  arrPacketSections.forEach(function(packetSection) {
+    dataSerializer.short(this.dnsPacket_.data_[packetSection].length);
+  }.bind(this));
 
-    arrPacketSections.forEach(function(packetSection) {
-      this.dnsPacket_.data_[packetSection].forEach(function(dnsRecord) {
-          this.serializeName(dnsRecord.name_, dataSerializer).
+  arrPacketSections.forEach(function(packetSection) {
+    this.dnsPacket_.data_[packetSection].forEach(function(dnsRecord) {
+      this.serializeName(dnsRecord.name_, dataSerializer).
              short(dnsRecord.type_).short(dnsRecord.cl_);
-      }.bind(this));
     }.bind(this));
+  }.bind(this));
 
-    return dataSerializer.getBuffer();
+  return dataSerializer.getBuffer();
 };
+
 
 /**
  * Writes a DNS name to a specified data serializer.
@@ -57,18 +70,18 @@ DNSPacketSerializer.prototype.serialize = function() {
 DNSPacketSerializer.prototype.serializeName = function(dnsName,
                                                        dnsSerializer,
                                                        opt_ref) {
-    var parts = dnsName.split('.');
-    parts.forEach(function(part) {
-        dnsSerializer.byte(part.length);
-        for (var i = 0; i < part.length; ++i) {
-            dnsSerializer.byte(part.charCodeAt(i));
-        }
-    }.bind(this));
-
-    if (opt_ref) {
-        dnsSerializer.byte(0xc0).byte(opt_ref);
-    } else {
-        dnsSerializer.byte(0);
+  var parts = dnsName.split('.');
+  parts.forEach(function(part) {
+    dnsSerializer.byte(part.length);
+    for (var i = 0; i < part.length; ++i) {
+      dnsSerializer.byte(part.charCodeAt(i));
     }
-    return dnsSerializer;
+  }.bind(this));
+
+  if (opt_ref) {
+    dnsSerializer.byte(0xc0).byte(opt_ref);
+  } else {
+    dnsSerializer.byte(0);
+  }
+  return dnsSerializer;
 };

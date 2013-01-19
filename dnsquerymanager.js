@@ -1,3 +1,12 @@
+// Copyright 2013. All Rights Reserved.
+
+/**
+ * @fileoverview Manage a DNS query and its response.
+ *
+ * @author ebeach@google.com (Eric Beach)
+ */
+
+
 /**
  * Manage a DNS query.
  * @param {string} hostname Hostname to lookup a record for.
@@ -6,12 +15,13 @@
  * @constructor
  */
 DNSQueryManager = function(hostname, recordTypeNum, dnsServer) {
-   this.hostname_ = hostname;
-   this.recordTypeNum_ = recordTypeNum;
-   this.dnsServer_ = dnsServer;
+  this.hostname_ = hostname;
+  this.recordTypeNum_ = recordTypeNum;
+  this.dnsServer_ = dnsServer;
 
-   this.printResponseFnc_ = this.defaultPrintResponse;
+  this.printResponseFnc_ = this.defaultPrintResponse;
 };
+
 
 /**
  * The hostname being looked up.
@@ -20,12 +30,14 @@ DNSQueryManager = function(hostname, recordTypeNum, dnsServer) {
  */
 DNSQueryManager.prototype.hostname_ = null;
 
+
 /**
  * DNS record type number.
  * @type {integer}
  * @private
  */
 DNSQueryManager.prototype.recordTypeNum_ = null;
+
 
 /**
  * Server to use for resolving DNS queries.
@@ -34,12 +46,14 @@ DNSQueryManager.prototype.recordTypeNum_ = null;
  */
 DNSQueryManager.prototype.dnsServer_ = null;
 
+
 /**
  * Port to use in connecting to DNS server.
  * @type {int}
  * @private
  */
 DNSQueryManager.prototype.dnsPort_ = 53;
+
 
 /**
  * Whether to perform a recursive DNS query. Default is true.
@@ -48,12 +62,14 @@ DNSQueryManager.prototype.dnsPort_ = 53;
  */
 DNSQueryManager.prototype.isRecursionDesired_ = true;
 
+
 /**
  * ID of the socket used to make a DNS query.
  * @type {integer}
  * @private
  */
 DNSQueryManager.prototype.socketId_ = null;
+
 
 /**
  * Function to print information to the app console.
@@ -66,6 +82,7 @@ DNSQueryManager.prototype.consoleFnc_ = function(msg) {
     console.log(msg);
 };
 
+
 /**
  * SocketInfo object storing information about the socket used
  *    to send and receive a DNS packet.
@@ -74,12 +91,14 @@ DNSQueryManager.prototype.consoleFnc_ = function(msg) {
  */
 DNSQueryManager.prototype.socketInfo_ = null;
 
+
 /**
  * DNS Packet sent as a DNS query.
  * @type {DNSPacket}
  * @private
  */
 DNSQueryManager.prototype.queryPacket_ = null;
+
 
 /**
  * Serialized DNS packet data to send as a DNS query.
@@ -88,6 +107,7 @@ DNSQueryManager.prototype.queryPacket_ = null;
  */
 DNSQueryManager.prototype.serializedQueryPacket_ = null;
 
+
 /**
  * Serialized DNS packet data received as a response to a query.
  * @type {ArrayBuffer}
@@ -95,12 +115,14 @@ DNSQueryManager.prototype.serializedQueryPacket_ = null;
  */
 DNSQueryManager.prototype.serializedResponsePacket_ = null;
 
+
 /**
  * DNS packet received in response to the DNS query.
  * @type {DNSPacket}
  * @private
  */
 DNSQueryManager.prototype.responsePacket_ = null;
+
 
 /**
  * Print the default packet response.
@@ -124,12 +146,14 @@ DNSQueryManager.prototype.defaultPrintResponse = function() {
     this.responsePacket_.each('ns', function(dnsPacket) {});
 };
 
+
 /**
  * Function to print parsed DNS response packet.
  * @type {function}
  * @private
  */
 DNSQueryManager.prototype.printResponseFnc_ = null;
+
 
 /**
  * Set whether to perform a recursive DNS query.
@@ -139,6 +163,7 @@ DNSQueryManager.prototype.setRecursionDesired = function(isDesired) {
    this.isRecursionDesired_ = (isDesired === true);
 };
 
+
 /**
  * Set the function used to log console information.
  * @param {function(string)} fnc Function to use for user-facing logging.
@@ -146,6 +171,7 @@ DNSQueryManager.prototype.setRecursionDesired = function(isDesired) {
 DNSQueryManager.prototype.setConsoleFunction = function(fnc) {
    this.consoleFnc_ = fnc;
 };
+
 
 /**
  * Obtain the bits for the DNS packet header.
@@ -161,6 +187,7 @@ DNSQueryManager.prototype.getFormattedHeader_ = function() {
       return 0;
    }
 };
+
 
 /**
  * Send the formatted DNS packet as a query to the desired DNS server.

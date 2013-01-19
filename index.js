@@ -1,3 +1,5 @@
+// Copyright 2013. All Rights Reserved.
+
 document.addEventListener('DOMContentLoaded', function() {
   // add listeners for tcp telnet tests
   document.getElementById('gHttpBtn').addEventListener('click',
@@ -37,12 +39,14 @@ document.addEventListener('DOMContentLoaded', function() {
 DNSInputHelper = function() {
 };
 
+
 /**
  * DOM ID of the DNS hostname field.
  * @type {string}
  * @private
  */
 DNSInputHelper.prototype.domIdDnsHostname_ = 'dnsHostname';
+
 
 /**
  * DOM ID of the DNS record type field.
@@ -51,12 +55,14 @@ DNSInputHelper.prototype.domIdDnsHostname_ = 'dnsHostname';
  */
 DNSInputHelper.prototype.domIdDnsRecordType_ = 'dnsRecordType';
 
+
 /**
  * DOM ID of the custom DNS resolver field.
  * @type {string}
  * @private
  */
 DNSInputHelper.prototype.domIdDnsCustomResolverIp_ = 'dnsResolver';
+
 
 /**
  * Determines whether the hostname is valid.
@@ -68,6 +74,7 @@ DNSInputHelper.prototype.isValidHostnameEntered = function() {
    return (hostname.length > 3);
 };
 
+
 /**
  * Obtain the hostname the user provided for lookup.
  * @return {string} Hostname user provided.
@@ -75,6 +82,7 @@ DNSInputHelper.prototype.isValidHostnameEntered = function() {
 DNSInputHelper.prototype.getHostnameEntered = function() {
    return document.getElementById(this.domIdDnsHostname_).value;
 };
+
 
 /**
  * Obtain the DNS resolver IP the user wishes to use for lookups.
@@ -85,6 +93,7 @@ DNSInputHelper.prototype.isValidCustomResolverIpEntered = function() {
     return true;
 };
 
+
 /**
  * Obtain the hostname the user provided for lookup.
  * @return {string} User provided resolver IP.
@@ -92,6 +101,7 @@ DNSInputHelper.prototype.isValidCustomResolverIpEntered = function() {
 DNSInputHelper.prototype.getCustomResolverIp = function() {
    return document.getElementById(this.domIdDnsCustomResolverIp_).value;
 };
+
 
 /**
  * Obtain the DNS record type number the user wishes to lookup.
