@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', function() {
       oDnsBtnClick);
   document.getElementById('l3DnsBtn').addEventListener('click',
       l3DnsBtnClick);
+  document.getElementById('whoAmIDnsBtn').addEventListener('click',
+      whoAmIDnsBtnClick);
+  document.getElementById('customDnsBtn').addEventListener('click',
+      customDnsBtnClick);
 
   // add listeners to more info
   document.getElementById('networkInterfaceInformationBtn')
@@ -27,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * Assist with handeling DNS input from the App.
  * @constructor
  */
 DNSInputHelper = function() {
@@ -47,6 +52,13 @@ DNSInputHelper.prototype.domIdDnsHostname_ = 'dnsHostname';
 DNSInputHelper.prototype.domIdDnsRecordType_ = 'dnsRecordType';
 
 /**
+ * DOM ID of the custom DNS resolver field.
+ * @type {string}
+ * @private
+ */
+DNSInputHelper.prototype.domIdDnsCustomResolverIp_ = 'dnsResolver';
+
+/**
  * Determines whether the hostname is valid.
  * @return {boolean} True if the hostname is valid.
  */
@@ -62,6 +74,23 @@ DNSInputHelper.prototype.isValidHostnameEntered = function() {
  */
 DNSInputHelper.prototype.getHostnameEntered = function() {
    return document.getElementById(this.domIdDnsHostname_).value;
+};
+
+/**
+ * Obtain the DNS resolver IP the user wishes to use for lookups.
+ * @return {boolean} True if the ip is valid.
+ */
+DNSInputHelper.prototype.isValidCustomResolverIpEntered = function() {
+    var ip = document.getElementById(this.domIdDnsCustomResolverIp_).value;
+    return true;
+};
+
+/**
+ * Obtain the hostname the user provided for lookup.
+ * @return {string} User provided resolver IP.
+ */
+DNSInputHelper.prototype.getCustomResolverIp = function() {
+   return document.getElementById(this.domIdDnsCustomResolverIp_).value;
 };
 
 /**
@@ -124,6 +153,26 @@ function gDnsBtnClick() {
      gDnsQuery.setConsoleFunction(ndbConsole);
      gDnsQuery.sendRequest();
    }
+}
+
+function whoAmIDnsBtnClick() {
+    var gDnsQuery = new DNSQueryManager('o-o.myaddr.google.com',
+            DNSUtil.RecordNumber.TXT,
+            '8.8.8.8');
+        gDnsQuery.setConsoleFunction(ndbConsole);
+        gDnsQuery.sendRequest();
+}
+
+function customDnsBtnClick() {
+    var inputHelper = new DNSInputHelper();
+    if (inputHelper.isValidHostnameEntered() &&
+            inputHelper.isValidCustomResolverIpEntered()) {
+      var gDnsQuery = new DNSQueryManager(inputHelper.getHostnameEntered(),
+          inputHelper.getRecordType(),
+          inputHelper.getCustomResolverIp());
+      gDnsQuery.setConsoleFunction(ndbConsole);
+      gDnsQuery.sendRequest();
+    }
 }
 
 function gHttpBtnClick() {
