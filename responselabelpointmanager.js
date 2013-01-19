@@ -35,7 +35,7 @@ ResponseLabelPointerManager.prototype.getNameFromReference = function(ref) {
 
     // Reassemble name from reference in DNS packet
     var subsectionDeserializer = new Deserializer(subArrayBuffer);
-    var subName = subsectionDeserializer.name(this);
+    var subName = subsectionDeserializer.name(this, subsectionDeserializer);
     return subName;
 };
 

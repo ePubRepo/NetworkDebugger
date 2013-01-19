@@ -7,10 +7,17 @@
  * @constructor
  */
 DNSPacketDeserializer = function(arBuffer, lblPointManager) {
-    this.consumer_ = new Deserializer(arBuffer);
+    this.dataDeserializer_ = new Deserializer(arBuffer);
     this.lblPointManager_ = lblPointManager;
     this.deserializePacket();
 };
+
+/**
+ * Parsed and deserialized DNS packet.
+ * @type {DNSPacket}
+ * @private
+ */
+DNSPacketDeserializer.prototype.dataDeserializer_ = null;
 
 /**
  * Parsed and deserialized DNS packet.
@@ -24,7 +31,7 @@ DNSPacketDeserializer.prototype.deserializedPacket_ = null;
  */
 DNSPacketDeserializer.prototype.deserializePacket = function() {
     // check the initial two bytes of the packet, which must start with 0s
-    var firstTwoBytes = this.consumer_.short();
+    var firstTwoBytes = this.dataDeserializer_.short();
     if (firstTwoBytes) {
         //TODO: Implement more sanity checks and process errors
         console.log('DNS packet must start with 00 00');
@@ -35,14 +42,14 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
     // (flags will be an integer decimal)
     // when "33152" is converted to binary, the value is:
     // "1000000110000000" This is 16 bits or 2 bytes
-    var flags = this.consumer_.short();
+    var flags = this.dataDeserializer_.short();
 
     // determine how many DNS records will be in each section of the DNS packet
     var sectionCount = {};
-    sectionCount[DNSUtil.PacketSection.QUESTION] = this.consumer_.short();
-    sectionCount[DNSUtil.PacketSection.ANSWER] = this.consumer_.short();
-    sectionCount[DNSUtil.PacketSection.AUTHORITY] = this.consumer_.short();
-    sectionCount[DNSUtil.PacketSection.ADDITIONAL] = this.consumer_.short();
+    sectionCount[DNSUtil.PacketSection.QUESTION] = this.dataDeserializer_.short();
+    sectionCount[DNSUtil.PacketSection.ANSWER] = this.dataDeserializer_.short();
+    sectionCount[DNSUtil.PacketSection.AUTHORITY] = this.dataDeserializer_.short();
+    sectionCount[DNSUtil.PacketSection.ADDITIONAL] = this.dataDeserializer_.short();
 
     var packet = new DNSPacket(flags);
 
@@ -50,13 +57,13 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
     for (var i = 0; i < sectionCount['qd']; ++i) {
       var part = new DNSRecord(
           // dns record name
-          this.consumer_.name(this.lblPointManager_),
+          this.dataDeserializer_.name(this.lblPointManager_),
 
           // dns record type
-          this.consumer_.short(),
+          this.dataDeserializer_.short(),
 
           // dns record class
-          this.consumer_.short());
+          this.dataDeserializer_.short());
 
       // set label point manager so individual record has access to entire
       // response packet to reassemble compressed DNS names
@@ -74,15 +81,15 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
       for (var i = 0; i < sectionCount[section]; ++i) {
 
         // See Section 3.2.1 in RFC 1035.
-        var recName = this.consumer_.name(this.lblPointManager_);
-        var recType = this.consumer_.short();
-        var recClass = this.consumer_.short();
-        var recTTL = this.consumer_.long();
+        var recName = this.dataDeserializer_.name(this.lblPointManager_);
+        var recType = this.dataDeserializer_.short();
+        var recClass = this.dataDeserializer_.short();
+        var recTTL = this.dataDeserializer_.long();
 
         // obtain the length of the resource record data section
         // See RDLENGTH of Section 3.2.1 in RFC 1035.
-        var dataLength = this.consumer_.short();
-        var dataSectionBinary = this.consumer_.slice(dataLength);
+        var dataLength = this.dataDeserializer_.short();
+        var dataSectionBinary = this.dataDeserializer_.slice(dataLength);
         var part = new DNSRecord(
             recName,
             recType,
@@ -104,7 +111,7 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
       }
     }.bind(this));
 
-    this.consumer_.isEOF_() || console.warn('was not EOF on incoming packet');
+    this.dataDeserializer_.isEOF_() || console.warn('was not EOF on incoming packet');
     this.deserializedPacket_ = packet;
 };
 
@@ -112,8 +119,7 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
  * Parse the data section of a DNS packet, reassembling DNS names based upon
  * DNS compression and parsing based upon various record types.
  * @param {DNSUtil.RecordNumber} recordTypeNum DNS record type number.
- * @param {ResponseLabelPointerManager} lblPtManager Label manager to help
- *                                                   reassemble DNS names.
+ * @param {ArrayBuffer} dataSectionBinary Binary data of data section.
  * @return {string} Text representation of a data section of a DNS record.
  */
 DNSPacketDeserializer.prototype.parseDataSection = function(recordTypeNum,
@@ -121,7 +127,8 @@ DNSPacketDeserializer.prototype.parseDataSection = function(recordTypeNum,
    var lblPtManager =  this.lblPointManager_;
    var dataSectionDeserializer = new Deserializer(dataSectionBinary);
    var dataSectionTxt = '';
-  switch (recordTypeNum) {
+   
+   switch (recordTypeNum) {
      case DNSUtil.RecordNumber.A:
          var arrOctect = [];
          while (!dataSectionDeserializer.isEOF_()) {
@@ -167,7 +174,8 @@ DNSPacketDeserializer.prototype.parseDataSection = function(recordTypeNum,
      case DNSUtil.RecordNumber.MX:
          var preferenceNum = dataSectionDeserializer.short();
          dataSectionTxt += 'Pref #: ' + preferenceNum;
-         dataSectionTxt += '; Value: ' + dataSectionDeserializer.name(lblPtManager);
+         dataSectionTxt += '; Value: ' +
+            dataSectionDeserializer.name(this.lblPointManager_);
          break;
   }
   return dataSectionTxt;
@@ -181,7 +189,7 @@ DNSPacketDeserializer.prototype.parseDataSection = function(recordTypeNum,
  * @return {string} Text representation of a name section of a DNS record.
  */
 //TODO: move into DNSPackerDeseralizer
-Deserializer.prototype.name = function(lblPtManager) {
+Deserializer.prototype.name = function(lblPtManager, nameDeserializer) {
   var parts = [];
   for (;;) {
     var len = this.byte_();
