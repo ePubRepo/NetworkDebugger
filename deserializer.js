@@ -33,6 +33,13 @@ Deserializer.prototype.loc_ = 0;
 
 
 /**
+ * ArrayBuffer storing binary data to be deserialized.
+ * @type {Unit8Array}
+ * @private
+ */
+Deserializer.prototype.view_ = null;
+
+/**
  * Determine whether Deserializer has read through all input data.
  * @return {boolean} Whether this DataConsumer has consumed all its data.
  * @private
