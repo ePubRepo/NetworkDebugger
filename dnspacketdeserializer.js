@@ -9,7 +9,6 @@
 DNSPacketDeserializer = function(arBuffer, lblPointManager) {
     this.dataDeserializer_ = new Deserializer(arBuffer);
     this.lblPointManager_ = lblPointManager;
-    this.deserializePacket();
 };
 
 /**
@@ -54,10 +53,10 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
     var packet = new DNSPacket(flags);
 
     // Parse the QUESTION section.
-    for (var i = 0; i < sectionCount['qd']; ++i) {
+    for (var qI = 0; qI < sectionCount[DNSUtil.PacketSection.QUESTION]; ++qI) {
       var part = new DNSRecord(
           // dns record name
-          this.dataDeserializer_.name(this.lblPointManager_),
+          this.parseName(this.lblPointManager_, this.dataDeserializer_),
 
           // dns record type
           this.dataDeserializer_.short(),
@@ -78,10 +77,10 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
                          DNSUtil.PacketSection.AUTHORITY,
                          DNSUtil.PacketSection.ADDITIONAL];
     parseSections.forEach(function(section) {
-      for (var i = 0; i < sectionCount[section]; ++i) {
+      for (var aI = 0; aI < sectionCount[section]; ++aI) {
 
         // See Section 3.2.1 in RFC 1035.
-        var recName = this.dataDeserializer_.name(this.lblPointManager_);
+        var recName = this.parseName(this.lblPointManager_, this.dataDeserializer_);
         var recType = this.dataDeserializer_.short();
         var recClass = this.dataDeserializer_.short();
         var recTTL = this.dataDeserializer_.long();
@@ -111,7 +110,7 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
       }
     }.bind(this));
 
-    this.dataDeserializer_.isEOF_() || console.warn('was not EOF on incoming packet');
+    this.dataDeserializer_.isEOF_() || console.warn('was not EOF on packet');
     this.deserializedPacket_ = packet;
 };
 
@@ -175,7 +174,7 @@ DNSPacketDeserializer.prototype.parseDataSection = function(recordTypeNum,
          var preferenceNum = dataSectionDeserializer.short();
          dataSectionTxt += 'Pref #: ' + preferenceNum;
          dataSectionTxt += '; Value: ' +
-            dataSectionDeserializer.name(this.lblPointManager_);
+            this.parseName(this.lblPointManager_, dataSectionDeserializer);
          break;
   }
   return dataSectionTxt;
@@ -186,13 +185,14 @@ DNSPacketDeserializer.prototype.parseDataSection = function(recordTypeNum,
  * reference (i.e., 0xc0 <ref>).
  * @param {ResponseLabelPointerManager} lblPtManager Reassemble compressed
  *                                                   DNS names.
- * @return {string} Text representation of a name section of a DNS record.
+ * @return {Deserializer} nameDeserializer Deserializer used to parse name.
+ * @return {string} Parsed and re-assembled DNS name.
  */
-//TODO: move into DNSPackerDeseralizer
-Deserializer.prototype.name = function(lblPtManager, nameDeserializer) {
+DNSPacketDeserializer.prototype.parseName = function(lblPtManager,
+                                                     nameDeserializer) {
   var parts = [];
   for (;;) {
-    var len = this.byte_();
+    var len = nameDeserializer.byte_();
 
     // Examine the length bit to determine whether what is coming is
     // a label reference or a length of a name.
@@ -204,7 +204,7 @@ Deserializer.prototype.name = function(lblPtManager, nameDeserializer) {
       // section that need to be ones... a label could be very large, so
       // checking against 0xc0 isn't 100% safe
 
-      var ref = this.byte_();
+      var ref = nameDeserializer.byte_();
       var nameSubstitution = lblPtManager.getNameFromReference(ref);
       parts.push(nameSubstitution);
       break;
@@ -213,7 +213,7 @@ Deserializer.prototype.name = function(lblPtManager, nameDeserializer) {
     // consume a DNS name
     var v = '';
     while (len-- > 0) {
-      var nextByte = this.byte_();
+      var nextByte = nameDeserializer.byte_();
       var nextChar = String.fromCharCode(nextByte);
       v += nextChar;
     }

@@ -190,6 +190,7 @@ DNSQueryManager.prototype.sendRequest = function() {
         var lblNameManager = new ResponseLabelPointerManager(readInfo.data);
         var packetDeserializer = new DNSPacketDeserializer(readInfo.data,
                                                        lblNameManager);
+        packetDeserializer.deserializePacket();
         this.responsePacket_ = packetDeserializer.getDeserializedPacket();
 
         this.consoleFnc_('Query response contains ' +
