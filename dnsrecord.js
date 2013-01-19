@@ -110,6 +110,14 @@ DNSRecord.prototype.getTTL = function() {
 };
 
 /**
+ * Set a text representation of the DNS packet's data section.
+ * @param {string} dataStr Text representation of data section.
+ */
+DNSRecord.prototype.setData = function(dataStr) {
+   this.dataTxt_ = dataStr;
+};
+
+/**
  * Parse the data section of the DNS record.
  * @return {string} Text representation of the data section of the record.
  */

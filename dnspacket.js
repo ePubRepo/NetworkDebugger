@@ -39,14 +39,14 @@ DNSPacket.prototype.push = function(packetSection, dnsRecord) {
  * @param {DNSUtil.PacketSection} packetSection Section of the DNS record.
  */
 DNSPacket.prototype.each = function(packetSection) {
-  var filter = false;
-  var callback;
-  if (arguments.length == 2) {
-      callback = arguments[1];
-  } else {
-    filter = arguments[1];
-    callback = arguments[2];
-  }
+    var filter = false;
+    var callback;
+    if (arguments.length == 2) {
+        callback = arguments[1];
+    } else {
+        filter = arguments[1];
+        callback = arguments[2];
+    }
 
   this.data_[packetSection].forEach(function(rec) {
     if (!filter || rec.type == filter) {

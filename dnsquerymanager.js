@@ -122,9 +122,7 @@ DNSQueryManager.prototype.defaultPrintResponse = function() {
     this.consoleFnc_(str);
 
     // parse authority section
-    this.responsePacket_.each('ns', function(dnsPacket) {
-      console.log(dnsPacket);
-    });
+    this.responsePacket_.each('ns', function(dnsPacket) {});
 };
 
 /**
