@@ -48,8 +48,6 @@ Deserializer.prototype.slice = function(length) {
  * @private
  */
 Deserializer.prototype.byte_ = function() {
-  // incrementing this by 1 seems to indicate that this
-  // function returns one byte at a time (i.e., 8 bits)
   this.loc_ += 1;
   return this.view_[this.loc_ - 1];
 };
