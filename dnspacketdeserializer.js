@@ -182,7 +182,7 @@ DNSPacketDeserializer.prototype.parseDataSection = function(recordTypeNum,
 };
 
 /**
- * Consumes a DNS name, which will either finish with a NULL byte or a suffix
+ * Parse a DNS name, which will either finish with a NULL byte or a suffix
  * reference (i.e., 0xc0 <ref>).
  * @param {ResponseLabelPointerManager} lblPtManager Reassemble compressed
  *                                                   DNS names.
