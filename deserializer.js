@@ -27,8 +27,8 @@ Deserializer.prototype.loc_ = 0;
  * @private
  */
 Deserializer.prototype.isEOF_ = function() {
-  // this indicates that loc_ is incremented in bytes
-  return this.loc_ >= this.view_.byteLength;
+    // check if current location, in bytes, is greater than length of data
+    return (this.loc_ >= this.view_.byteLength);
 };
 
 /**
@@ -36,7 +36,6 @@ Deserializer.prototype.isEOF_ = function() {
  * @param {integer} length Number of bytes to return from front of the view.
  * @return {Uint8Array} A subsection of the larger ArrayBuffer.
  */
-//TODO: probably should be private
 Deserializer.prototype.slice = function(length) {
   var view = this.view_.subarray(this.loc_, this.loc_ + length);
   this.loc_ += length;

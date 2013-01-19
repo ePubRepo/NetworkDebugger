@@ -9,13 +9,12 @@
  */
 var DNSPacket = function(opt_flags) {
     this.flags_ = opt_flags || 0;
-    // TODO: Make this an enum
-    this.data_ = {
-            'qd': [], // 'qd'
-            'an': [], // 'an'
-            'ns': [], // 'ns'
-            'ar': [] // 'ar'
-    };
+
+    this.data_ = {};
+    this.data_[DNSUtil.PacketSection.QUESTION] = [];
+    this.data_[DNSUtil.PacketSection.ANSWER] = [];
+    this.data_[DNSUtil.PacketSection.AUTHORITY] = [];
+    this.data_[DNSUtil.PacketSection.ADDITIONAL] = [];
 };
 
 /**
