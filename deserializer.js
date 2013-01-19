@@ -141,8 +141,8 @@ Deserializer.prototype.parseDataSection = function(recordTypeNum,
 
      case DNSUtil.RecordNumber.MX:
          var preferenceNum = this.short();
-         dataSectionTxt += 'Preference #: ' + preferenceNum;
-         dataSectionTxt += ' // MX: ' + this.name(lblPtManager);
+         dataSectionTxt += 'Pref #: ' + preferenceNum;
+         dataSectionTxt += '; Value: ' + this.name(lblPtManager);
          break;
   }
   return dataSectionTxt;
