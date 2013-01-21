@@ -129,21 +129,24 @@ DNSQueryManager.prototype.responsePacket_ = null;
  */
 DNSQueryManager.prototype.defaultPrintResponse = function() {
     // represent question section
-    this.responsePacket_.each('qd', function(dnsPacket) {}.bind(this));
+    this.responsePacket_.each(DNSUtil.PacketSection.QUESTION,
+                              function(dnsPacket) {}.bind(this));
 
     // represent answer section
     var str = '';
-    this.responsePacket_.each('an', function(dnsPacket) {
-        str += DNSUtil.getRecordTypeNameByRecordTypeNum(
+    this.responsePacket_.each(DNSUtil.PacketSection.ANSWER,
+        function(dnsPacket) {
+          str += DNSUtil.getRecordTypeNameByRecordTypeNum(
                                      dnsPacket.getType()) +
-           ' record with name ' +
-           dnsPacket.getName() + ' and TTL ' + dnsPacket.getTTL() +
-           ' and data section of ' + dnsPacket.getDataText() + '\r\n';
+          ' record with name ' +
+          dnsPacket.getName() + ' and TTL ' + dnsPacket.getTTL() +
+          ' and data section of ' + dnsPacket.getDataText() + '\r\n';
     }.bind(this));
     this.consoleFnc_(str);
 
     // represent authority section
-    this.responsePacket_.each('ns', function(dnsPacket) {});
+    this.responsePacket_.each(DNSUtil.PacketSection.AUTHORITY,
+                              function(dnsPacket) {});
 };
 
 
@@ -193,14 +196,35 @@ DNSQueryManager.prototype.getFormattedHeader_ = function() {
  * Send the formatted DNS packet as a query to the desired DNS server.
  */
 DNSQueryManager.prototype.sendRequest = function() {
+    var udpTimeoutSec = 7;
+    var udpTimeoutFunction = setInterval(timeout_.bind(this),
+                                         udpTimeoutSec * 1000);
+    var packetResponseSuccessful = false;
+
+    /**
+     * Clean up socket as no response is coming back.
+     * @this {DNSQueryManager}
+     * @private
+     */
+    function timeout_() {
+      this.consoleFnc_('Received no response in ' + udpTimeoutSec +
+          ' seconds, closing socket');
+      clearTimeout(udpTimeoutFunction);
+      cleanUp_.apply(this);
+    };
+
     /**
      * Perform clean up operation on the socket, such as closing it.
      * @this {DNSQueryManager}
+     * @private
      */
     function cleanUp_() {
-        chrome.socket.destroy(this.socketId_);
-        this.consoleFnc_('Socket closed');
+      chrome.socket.destroy(this.socketId_);
+      this.consoleFnc_('Socket closed');
+
+      if (packetResponseSuccessful) {
         this.printResponseFnc_();
+      }
     };
 
     /**
@@ -210,21 +234,24 @@ DNSQueryManager.prototype.sendRequest = function() {
      * @private
      */
     function dataRead_(readInfo) {
-        this.consoleFnc_('Received ' + readInfo.resultCode + ' byte query ' +
+      clearTimeout(udpTimeoutFunction);
+
+      this.consoleFnc_('Received ' + readInfo.resultCode + ' byte query ' +
                 'response');
-        this.serializedResponsePacket_ = readInfo.data;
+      this.serializedResponsePacket_ = readInfo.data;
 
-        var lblNameManager = new ResponseLabelPointerManager(readInfo.data);
-        var packetDeserializer = new DNSPacketDeserializer(readInfo.data,
+      var lblNameManager = new ResponseLabelPointerManager(readInfo.data);
+      var packetDeserializer = new DNSPacketDeserializer(readInfo.data,
                                                        lblNameManager);
-        packetDeserializer.deserializePacket();
-        this.responsePacket_ = packetDeserializer.getDeserializedPacket();
+      packetDeserializer.deserializePacket();
+      this.responsePacket_ = packetDeserializer.getDeserializedPacket();
 
-        this.consoleFnc_('Query response contains ' +
+      this.consoleFnc_('Query response contains ' +
                 this.responsePacket_.getAnswerRecordCount() + ' answer ' +
                 'records');
 
-        cleanUp_.apply(this);
+      packetResponseSuccessful = true;
+      cleanUp_.apply(this);
     };
 
     /**
@@ -233,7 +260,7 @@ DNSQueryManager.prototype.sendRequest = function() {
      * @private
      */
    function readData_() {
-       chrome.socket.read(this.socketId_, dataRead_.bind(this));
+     chrome.socket.read(this.socketId_, dataRead_.bind(this));
    }
 
    /**
@@ -244,14 +271,14 @@ DNSQueryManager.prototype.sendRequest = function() {
     * @private
     */
    function onDataWritten_(writeInfo) {
-      if (writeInfo.bytesWritten != this.serializedQueryPacket_.byteLength) {
-          this.consoleFnc_('Error writing DNS packet.');
-          chrome.socket.destroy(this.socketId_);
-      } else {
-          this.consoleFnc_('Successfully sent ' + writeInfo.bytesWritten +
+     if (writeInfo.bytesWritten != this.serializedQueryPacket_.byteLength) {
+       this.consoleFnc_('Error writing DNS packet.');
+       chrome.socket.destroy(this.socketId_);
+     } else {
+       this.consoleFnc_('Successfully sent ' + writeInfo.bytesWritten +
             ' bytes in a DNS packet');
-          readData_.apply(this);
-      }
+       readData_.apply(this);
+     }
    };
 
    /**
@@ -260,22 +287,23 @@ DNSQueryManager.prototype.sendRequest = function() {
     * @private
     */
    function sendData_() {
-      var packetHeader = this.getFormattedHeader_();
-      this.queryPacket_ = new DNSPacket(packetHeader);
-      this.queryPacket_.push('qd', new DNSRecord(this.hostname_,
-                                      this.recordTypeNum_,
-                                      1));
+     var packetHeader = this.getFormattedHeader_();
+     this.queryPacket_ = new DNSPacket(packetHeader);
+     this.queryPacket_.push(DNSUtil.PacketSection.QUESTION,
+                            new DNSRecord(this.hostname_,
+                                          this.recordTypeNum_,
+                                          1));
 
-      // take data and serialize it into binary as an ArrayBuffer to send
-      var serializer = new DNSPacketSerializer(this.queryPacket_);
-      this.serializedQueryPacket_ = serializer.serialize();
+     // take data and serialize it into binary as an ArrayBuffer to send
+     var serializer = new DNSPacketSerializer(this.queryPacket_);
+     this.serializedQueryPacket_ = serializer.serialize();
 
-      this.consoleFnc_('Preparing to query server ' + this.dnsServer_ + ' ' +
+     this.consoleFnc_('Preparing to query server ' + this.dnsServer_ + ' ' +
               'for record type ' +
               DNSUtil.getRecordTypeNameByRecordTypeNum(this.recordTypeNum_) +
               ' with hostname ' + this.hostname_);
 
-      chrome.socket.write(this.socketId_,
+     chrome.socket.write(this.socketId_,
                           this.serializedQueryPacket_,
                           onDataWritten_.bind(this));
    };
@@ -287,11 +315,10 @@ DNSQueryManager.prototype.sendRequest = function() {
     * @private
     */
    function onConnectedCallback_(result) {
-       // TODO: Find out what result is
-       this.socketInfo_ = new SocketInfo(this.socketId_);
-       this.socketInfo_.setConsoleFunction(this.consoleFnc_);
-       this.socketInfo_.printSocketInfo();
-       sendData_.apply(this);
+     this.socketInfo_ = new SocketInfo(this.socketId_);
+     this.socketInfo_.setConsoleFunction(this.consoleFnc_);
+     this.socketInfo_.printSocketInfo();
+     sendData_.apply(this);
    };
 
    /**
@@ -300,7 +327,7 @@ DNSQueryManager.prototype.sendRequest = function() {
     * @private
     */
    function connect_() {
-       chrome.socket.connect(this.socketId_,
+     chrome.socket.connect(this.socketId_,
                               this.dnsServer_,
                               this.dnsPort_,
                               onConnectedCallback_.bind(this));
@@ -314,8 +341,8 @@ DNSQueryManager.prototype.sendRequest = function() {
     * @private
     */
    function onCreatedCallback_(createInfo) {
-      this.socketId_ = createInfo.socketId;
-      connect_.apply(this);
+     this.socketId_ = createInfo.socketId;
+     connect_.apply(this);
    };
 
    // create a UDP socket for sending and receiving a DNS packet

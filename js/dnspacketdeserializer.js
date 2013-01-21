@@ -122,7 +122,7 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
 
         case DNSUtil.RecordNumber.TXT:
           var part = new DNSRecordTXT(recName, recTTL);
-          break;          
+          break;
 
         case DNSUtil.RecordNumber.CNAME:
           var part = new DNSRecordCNAME(recName, recTTL);
@@ -141,8 +141,6 @@ DNSPacketDeserializer.prototype.deserializePacket = function() {
       // response packet to reassemble compressed DNS names
       part.setLblPointManager(this.lblPointManager_);
       part.setData(dtSectBinary);
-
-      console.log(part);
 
       // parse data section of record and set it as part of the record
       // specifics of parsing data section depend in part on record type
@@ -203,11 +201,6 @@ DNSPacketDeserializer.prototype.parseDataSection = function(recordTypeNum,
       break;
 
     case DNSUtil.RecordNumber.CNAME:
-      //while (!dataSectionDeserializer.isEOF_()) {
-      //  var nextByte = dataSectionDeserializer.byte_();
-     //   var nextChar = String.fromCharCode(nextByte);
-     //   dataSectionTxt += nextChar;
-     // }
       dataSectionTxt += this.parseName(this.lblPointManager_,
                                        dataSectionDeserializer);
       dnsPacket.setCname(dataSectionTxt);
