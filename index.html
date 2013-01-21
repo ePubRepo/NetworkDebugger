@@ -3,20 +3,25 @@
 <head>
     <meta charset="utf-8">
     <title>Network Debugger</title>
-    <link href="index.css" rel="stylesheet">
-    <script type="text/javascript" src="deserializer.js"></script>
-    <script type="text/javascript" src="dnsutil.js"></script>
-    <script type="text/javascript" src="dnsrecord.js"></script>
-    <script type="text/javascript" src="dnspacket.js"></script>
-    <script type="text/javascript" src="dnspacketserializer.js"></script>
-    <script type="text/javascript" src="dnspacketdeserializer.js"></script>
-    <script type="text/javascript" src="responselabelpointmanager.js"></script>
-    <script type="text/javascript" src="index.js"></script>
-    <script type="text/javascript" src="serializer.js"></script>
-    <script type="text/javascript" src="telnet.js"></script>
-    <script type="text/javascript" src="socketinfo.js"></script>
-    <script type="text/javascript" src="networkinterfaceinformation.js"></script>
-    <script type="text/javascript" src="dnsquerymanager.js"></script>
+    <link href="css/index.css" rel="stylesheet">
+    <script type="text/javascript" src="js/deserializer.js"></script>
+    <script type="text/javascript" src="js/dnsutil.js"></script>
+    <script type="text/javascript" src="js/dnsrecord.js"></script>
+    <script type="text/javascript" src="js/dnsrecorda.js"></script>
+    <script type="text/javascript" src="js/dnsrecordmx.js"></script>
+    <script type="text/javascript" src="js/dnsrecordaaaa.js"></script>
+    <script type="text/javascript" src="js/dnsrecordtxt.js"></script>
+    <script type="text/javascript" src="js/dnsrecordcname.js"></script>
+    <script type="text/javascript" src="js/dnspacket.js"></script>
+    <script type="text/javascript" src="js/dnspacketserializer.js"></script>
+    <script type="text/javascript" src="js/dnspacketdeserializer.js"></script>
+    <script type="text/javascript" src="js/responselabelpointmanager.js"></script>
+    <script type="text/javascript" src="js/serializer.js"></script>
+    <script type="text/javascript" src="js/telnet.js"></script>
+    <script type="text/javascript" src="js/socketinfo.js"></script>
+    <script type="text/javascript" src="js/networkinterfaceinformation.js"></script>
+    <script type="text/javascript" src="js/dnsquerymanager.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
 </head>
 <body>
 <!-- Page Top -->
@@ -49,6 +54,7 @@
 <option>AAAA</option>
 <option>MX</option>
 <option>TXT</option>
+<option>CNAME</option>
 </select>
 <br />
 <input type="button" class="button button-enabled" value="Google DNS" id="gDnsBtn" />

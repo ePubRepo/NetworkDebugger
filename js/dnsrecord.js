@@ -7,7 +7,6 @@
  */
 
 
-
 /**
  * DNSRecord is a record inside a DNS packet; e.g. a QUESTION, or an ANSWER,
  * AUTHORITY, or ADDITIONAL record. Note that QUESTION records are special,
@@ -25,8 +24,7 @@ DNSRecord = function(name, type, cl, opt_ttl, opt_data) {
   this.type_ = type;
   this.cl_ = cl;
 
-  this.isQD = (arguments.length == 3);
-  if (!this.isQD) {
+  if (arguments.length > 3) {
     this.ttl_ = opt_ttl;
     this.data_ = opt_data;
   }

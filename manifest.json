@@ -4,8 +4,8 @@
   "version": "0.1",
   "minimum_chrome_version": "25",
   "icons": {
-    "128": "icon_128.png",
-    "16": "icon_16.png"
+    "128": "img/icon_128.png",
+    "16": "img/icon_16.png"
   },
   "permissions" : [
    { "socket" : [
@@ -19,7 +19,7 @@
   ],
   "app": {
     "background": {
-      "scripts": ["background.js"]
+      "scripts": ["js/background.js"]
     }
   }
 }
