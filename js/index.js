@@ -40,8 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * Assist with handeling DNS input from the App.
  * @constructor
  */
-DNSInputHelper = function() {
-};
+DNSInputHelper = function() {};
 
 
 /**
@@ -134,6 +133,10 @@ function ndbConsole(outStr) {
       ':' + now.getUTCSeconds() + '.' + now.getUTCMilliseconds() + ' UTC';
    var strToAppend = strDate + '\r\n' + outStr + '\r\n\r\n';
    document.getElementById('console').value += strToAppend;
+}
+
+function basicDiagnostics() {
+  
 }
 
 function l3DnsBtnClick() {
