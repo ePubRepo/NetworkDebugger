@@ -45,8 +45,22 @@ body {
 }
 
 #console {
-   width: 95%;
+   width: 100%;
    min-height: 200px;
+}
+
+#test-basic-run {
+	text-align: center;
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+
+.display-full {
+	display: block;
+}
+
+.display-none {
+	display: none;
 }
 
 .button {
@@ -56,6 +70,10 @@ body {
    border-radius: 2px;
    -webkit-transition: all 0.218s;
    transition: all 0.218s;
+}
+
+.extra-large-button {
+	font-size: 135%;
 }
 
 .button-enabled {
