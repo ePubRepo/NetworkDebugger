@@ -70,6 +70,12 @@ DNSQueryManager.prototype.isRecursionDesired_ = true;
  */
 DNSQueryManager.prototype.socketId_ = null;
 
+/**
+ * @type {OutputRecorderManager}
+ * @private
+ */
+DNSQueryManager.prototype.outputRecordManager_ = null;
+
 
 /**
  * Function to print information to the app console.

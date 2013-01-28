@@ -29,6 +29,7 @@ OutputRecorderManager = function() {
  */
 OutputRecorderManager.prototype.outputEntries_ = null;
 
+
 /**
  * Push a message to the record.
  * @param {OutputRecord.DetailLevel} level Level of log information.
@@ -37,4 +38,12 @@ OutputRecorderManager.prototype.outputEntries_ = null;
 OutputRecorderManager.prototype.pushEntry = function(level, msg) {
   var record = new OutputRecord(level, msg);
   this.outputEntries_.push();
+};
+
+/**
+ * Return set of output entries.
+ * @return {Array.OutputRecord} Set of output entries with log records.
+ */
+OutputRecorderManager.prototype.getOutputRecords = function() {
+  return this.outputEntries_;
 };
