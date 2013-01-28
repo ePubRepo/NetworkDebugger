@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .addEventListener('click', consoleCopyBtnBtnClick);
 });
 
+
 function ndbConsole(outStr) {
    var now = new Date();
    var strDate = now.getUTCFullYear() + '-' + (now.getUTCMonth() + 1) + '-' +
@@ -45,9 +46,24 @@ function ndbConsole(outStr) {
    document.getElementById('console').value += strToAppend;
 }
 
+
 function basicDiagnostics() {
+  ndbConsole('Preparing to run network diagnostics.');
   
+  // make queries to Google Public DNS
+  var arrHostsToQuery = ['google.com', 'mail.google.com', 'docs.google.com',
+                         'accounts.google.com', 'apis.google.com'];
+  
+  for (var i = 0; i < arrHostsToQuery.length; i++) {
+    // TODO: create each test in new thread
+    var gDnsQuery = new DNSQueryManager(arrHostsToQuery[i],
+        DNSUtil.RecordNumber.A,
+        '8.8.8.8');
+    gDnsQuery.setConsoleFunction(ndbConsole);
+    gDnsQuery.sendRequest();   
+  }
 }
+
 
 function l3DnsBtnClick() {
    var inputHelper = new DNSInputHelper();
@@ -60,6 +76,7 @@ function l3DnsBtnClick() {
    }
 }
 
+
 function oDnsBtnClick() {
    var inputHelper = new DNSInputHelper();
    if (inputHelper.isValidHostnameEntered()) {
@@ -70,6 +87,7 @@ function oDnsBtnClick() {
      gDnsQuery.sendRequest();
    }
 }
+
 
 function gDnsBtnClick() {
    var inputHelper = new DNSInputHelper();
@@ -82,6 +100,7 @@ function gDnsBtnClick() {
    }
 }
 
+
 function whoAmIDnsBtnClick() {
     var gDnsQuery = new DNSQueryManager('o-o.myaddr.google.com',
             DNSUtil.RecordNumber.TXT,
@@ -89,6 +108,7 @@ function whoAmIDnsBtnClick() {
         gDnsQuery.setConsoleFunction(ndbConsole);
         gDnsQuery.sendRequest();
 }
+
 
 function customDnsBtnClick() {
     var inputHelper = new DNSInputHelper();
@@ -102,6 +122,7 @@ function customDnsBtnClick() {
     }
 }
 
+
 function gHttpBtnClick() {
    var objTelnet = new Telnet('www.google.com', 80);
    objTelnet.setConsoleFunction(ndbConsole);
@@ -109,6 +130,7 @@ function gHttpBtnClick() {
       setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n');
    objTelnet.createSocket_();
 }
+
 
 function gHttpsBtnClick() {
    var objTelnet = new Telnet('74.125.228.114', 443);
@@ -118,6 +140,7 @@ function gHttpsBtnClick() {
    objTelnet.createSocket_();
 }
 
+
 function mHttpBtnClick() {
    var objTelnet = new Telnet('mail.google.com', 80);
    objTelnet.setConsoleFunction(ndbConsole);
@@ -125,6 +148,7 @@ function mHttpBtnClick() {
       setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: mail.google.com\r\n\r\n');
    objTelnet.createSocket_();
 }
+
 
 function dHttpBtnClick() {
    var objTelnet = new Telnet('drive.google.com', 80);
@@ -134,14 +158,17 @@ function dHttpBtnClick() {
    objTelnet.createSocket_();
 }
 
+
 function consoleCopyBtnBtnClick() {
    document.getElementById('console').select();
    document.execCommand('Copy');
 }
 
+
 function consoleClearBtnBtnClick() {
    document.getElementById('console').value = '';
 }
+
 
 function networkInterfaceInformationBtnClick() {
    var nicInfo = new NetworkInterfaceInformation();
