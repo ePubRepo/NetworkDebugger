@@ -1,14 +1,17 @@
 // Copyright 2013. All Rights Reserved.
 
 /**
- * @fileoverview Capture and store output from tests.
+ * @fileoverview Encapsulate one output message from a test.
  *
  * @author ebeach@google.com (Eric Beach)
  */
 
 
 /**
- * 
+ * Store a log output from a test along with a timestamp and log level.
+ *
+ * @param {OutputRecord.DetailLevel} level Level of output record.
+ * @param {string} message Message to be recorded.
  * @constructor
  */
 OutputRecord = function(level, message) {
@@ -34,6 +37,7 @@ OutputRecord.DetailLevel = {
 /**
  * Timestamp of message.
  * @type {integer}
+ * @private
  */
 OutputRecord.prototype.timestamp_ = null;
 
@@ -41,6 +45,7 @@ OutputRecord.prototype.timestamp_ = null;
 /**
  * Detail level of output message.
  * @type {OutputRecord.DetailLevel}
+ * @private
  */
 OutputRecord.prototype.level_ = null;
 
@@ -48,21 +53,33 @@ OutputRecord.prototype.level_ = null;
 /**
  * Message to be recorded.
  * @type {string}
+ * @private
  */
 OutputRecord.prototype.message_ = null;
 
 
+/**
+ * Return the timestamp of the record.
+ * @return {integer} Timestamp of record entry.
+ */
 OutputRecord.prototype.getTimestamp = function() {
   return this.timestamp_;
 };
 
 
+/**
+ * Return the log level for this record entry.
+ * @return {OutputRecord.DetailLevel} Level of log entry.
+ */
 OutputRecord.prototype.getLevel = function() {
   return this.level_;
 };
 
 
+/**
+ * Return log message.
+ * @return {string} Log message.
+ */
 OutputRecord.prototype.getMessage = function() {
   return this.message_;
 };
-

@@ -1,7 +1,7 @@
 // Copyright 2013. All Rights Reserved.
 
 document.addEventListener('DOMContentLoaded', function() {
-  // add listener for running general diagnostics 
+  // add listener for running general diagnostics
   document.getElementById('runDiagnosticsBtn').addEventListener('click',
       basicDiagnostics);
 
@@ -49,18 +49,18 @@ function ndbConsole(outStr) {
 
 function basicDiagnostics() {
   ndbConsole('Preparing to run network diagnostics.');
-  
+
   // make queries to Google Public DNS
   var arrHostsToQuery = ['google.com', 'mail.google.com', 'docs.google.com',
                          'accounts.google.com', 'apis.google.com'];
-  
+
   for (var i = 0; i < arrHostsToQuery.length; i++) {
     // TODO: create each test in new thread
     var gDnsQuery = new DNSQueryManager(arrHostsToQuery[i],
         DNSUtil.RecordNumber.A,
         '8.8.8.8');
     gDnsQuery.setConsoleFunction(ndbConsole);
-    gDnsQuery.sendRequest();   
+    gDnsQuery.sendRequest();
   }
 }
 

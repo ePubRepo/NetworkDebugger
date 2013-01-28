@@ -14,17 +14,20 @@
 /**
  * Receive output messages from one test and record it along with an associated
  * timestamp. Each test should have its own instance of an OutputRecordManager.
- * 
+ *
  * @constructor
  */
-OutputRecorderManager = function() {};
+OutputRecorderManager = function() {
+  this.outputEntries_ = new Array();
+};
 
 
 /**
  * Store instances of OutputRecord.
  * @type Array.OutputRecord
+ * @private
  */
-OutputRecorderManager.prototype.outputEntries_ = new Array();
+OutputRecorderManager.prototype.outputEntries_ = null;
 
 /**
  * Push a message to the record.
