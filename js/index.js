@@ -48,18 +48,21 @@ function ndbConsole(outStr) {
 
 
 function basicDiagnostics() {
-  ndbConsole('Preparing to run network diagnostics.');
-
-  // make queries to Google Public DNS
+  // function for callback
+  function finishedFnc(completedDnsQuery) {
+    console.log(completedDnsQuery);
+    ndbConsole('dddd');
+  }
+  
+  // hosts to query Google Public DNS
   var arrHostsToQuery = ['google.com', 'mail.google.com', 'docs.google.com',
                          'accounts.google.com', 'apis.google.com'];
 
   for (var i = 0; i < arrHostsToQuery.length; i++) {
-    // TODO: create each test in new thread
     var gDnsQuery = new DNSQueryManager(arrHostsToQuery[i],
         DNSUtil.RecordNumber.A,
-        '8.8.8.8');
-    gDnsQuery.setConsoleFunction(ndbConsole);
+        '8.8.8.8',
+        finishedFnc);
     gDnsQuery.sendRequest();
   }
 }

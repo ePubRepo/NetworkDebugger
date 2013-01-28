@@ -12,14 +12,19 @@
  * @param {string} hostname Hostname to lookup a record for.
  * @param {int} recordTypeNum Type of record to lookup.
  * @param {string} dnsServer Server to query against records.
+ * @param {function(DNSQueryManager)} finalCallbackFnc Callback function run
+ *                                                     when query done.
  * @constructor
  */
-DNSQueryManager = function(hostname, recordTypeNum, dnsServer) {
+// TODO: callback function should have status
+DNSQueryManager = function(hostname, recordTypeNum,
+                           dnsServer, finalCallbackFnc) {
   this.hostname_ = hostname;
   this.recordTypeNum_ = recordTypeNum;
   this.dnsServer_ = dnsServer;
+  this.finalCallbackFnc_ = finalCallbackFnc;
 
-  this.printResponseFnc_ = this.defaultPrintResponse;
+  this.outputRecordManager_ = new OutputRecorderManager();
 };
 
 
@@ -71,22 +76,11 @@ DNSQueryManager.prototype.isRecursionDesired_ = true;
 DNSQueryManager.prototype.socketId_ = null;
 
 /**
+ * Store log/record of technical details.
  * @type {OutputRecorderManager}
  * @private
  */
 DNSQueryManager.prototype.outputRecordManager_ = null;
-
-
-/**
- * Function to print information to the app console.
- * Default function simply logs to the browser's console.
- * @type {function(string)}
- * @param {string} msg Message for the console.
- * @private
- */
-DNSQueryManager.prototype.consoleFnc_ = function(msg) {
-    console.log(msg);
-};
 
 
 /**
@@ -131,8 +125,43 @@ DNSQueryManager.prototype.responsePacket_ = null;
 
 
 /**
+ * Function to be called when DNS query reaches an end.
+ * @type {function(DNSQueryManager)}
+ * @private
+ */
+DNSQueryManager.prototype.finalCallbackFnc_ = null;
+
+
+/**
+ * Store the status of the DNS query.
+ * @type {DNSQueryManager.QueryResultStatus} Status of the DNS query.
+ */
+DNSQueryManager.prototype.queryResultStatus_ = null;
+
+
+/**
+ * Enum to capture the result of a DNS query.
+ * @enum {integer}
+ */
+DNSQueryManager.QueryResultStatus = {
+  SUCCESS_PACKET_PARSE: 0,
+  FAIL_TIMEOUT: 1
+};
+
+
+/**
+ * Return the output manager that records output logs on this DNS query.
+ * @return {OutputRecordManager} Recorded information from DNS query.
+ */
+DNSQueryManager.prototype.getOutputRecordManager = function() {
+  return this.outputRecordManager_;
+};
+
+
+/**
  * Print the default packet response.
  */
+// TODO: Move out of this object.. it should not be here
 DNSQueryManager.prototype.defaultPrintResponse = function() {
     // represent question section
     this.responsePacket_.each(DNSUtil.PacketSection.QUESTION,
@@ -141,14 +170,16 @@ DNSQueryManager.prototype.defaultPrintResponse = function() {
     // represent answer section
     var str = '';
     this.responsePacket_.each(DNSUtil.PacketSection.ANSWER,
-        function(dnsPacket) {
-          str += DNSUtil.getRecordTypeNameByRecordTypeNum(
+      function(dnsPacket) {
+        str = '';
+        str += DNSUtil.getRecordTypeNameByRecordTypeNum(
                                      dnsPacket.getType()) +
-          ' record with name ' +
-          dnsPacket.getName() + ' and TTL ' + dnsPacket.getTTL() +
-          ' and data section of ' + dnsPacket.getDataText() + '\r\n';
-    }.bind(this));
-    this.consoleFnc_(str);
+        ' record with name ' +
+        dnsPacket.getName() + ' and TTL ' + dnsPacket.getTTL() +
+        ' and data section of ' + dnsPacket.getDataText() + '\r\n';
+        this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+          str);
+      }.bind(this));
 
     // represent authority section
     this.responsePacket_.each(DNSUtil.PacketSection.AUTHORITY,
@@ -157,28 +188,11 @@ DNSQueryManager.prototype.defaultPrintResponse = function() {
 
 
 /**
- * Function to print parsed DNS response packet.
- * @type {function}
- * @private
- */
-DNSQueryManager.prototype.printResponseFnc_ = null;
-
-
-/**
  * Set whether to perform a recursive DNS query.
  * @param {boolean} isDesired Whether the DNS query should be recursive.
  */
 DNSQueryManager.prototype.setRecursionDesired = function(isDesired) {
    this.isRecursionDesired_ = (isDesired === true);
-};
-
-
-/**
- * Set the function used to log console information.
- * @param {function(string)} fnc Function to use for user-facing logging.
- */
-DNSQueryManager.prototype.setConsoleFunction = function(fnc) {
-   this.consoleFnc_ = fnc;
 };
 
 
@@ -205,19 +219,6 @@ DNSQueryManager.prototype.sendRequest = function() {
     var udpTimeoutSec = 7;
     var udpTimeoutFunction = setInterval(timeout_.bind(this),
                                          udpTimeoutSec * 1000);
-    var packetResponseSuccessful = false;
-
-    /**
-     * Clean up socket as no response is coming back.
-     * @this {DNSQueryManager}
-     * @private
-     */
-    function timeout_() {
-      this.consoleFnc_('Received no response in ' + udpTimeoutSec +
-          ' seconds, closing socket');
-      clearTimeout(udpTimeoutFunction);
-      cleanUp_.apply(this);
-    };
 
     /**
      * Perform clean up operation on the socket, such as closing it.
@@ -226,14 +227,29 @@ DNSQueryManager.prototype.sendRequest = function() {
      */
     function cleanUp_() {
       chrome.socket.destroy(this.socketId_);
-      this.consoleFnc_('Socket closed');
+      this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+          'Socket closed');
 
-      if (packetResponseSuccessful) {
-        // TODO: Eliminate default print function
-        // Pass DNSPacket and some type of status result
-        this.printResponseFnc_();
+      if (this.queryResultStatus_ ==
+            DNSQueryManager.QueryResultStatus.SUCCESS_PACKET_PARSE) {
+        this.finalCallbackFnc_(this);
       }
     };
+    
+    /**
+     * Clean up socket as no response is coming back.
+     * @this {DNSQueryManager}
+     * @private
+     */
+    function timeout_() {
+      this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+          'Received no response in ' + udpTimeoutSec +
+          ' seconds, closing socket');
+      clearTimeout(udpTimeoutFunction);
+      this.queryResultStatus_ = DNSQueryManager.QueryResultStatus.FAIL_TIMEOUT;
+      cleanUp_.apply(this);
+    };
+    
 
     /**
      * @param {ReadInfo} readInfo Information about data read over the socket.
@@ -244,8 +260,8 @@ DNSQueryManager.prototype.sendRequest = function() {
     function dataRead_(readInfo) {
       clearTimeout(udpTimeoutFunction);
 
-      this.consoleFnc_('Received ' + readInfo.resultCode + ' byte query ' +
-                'response');
+      this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.ERROR,
+          'Received ' + readInfo.resultCode + ' byte query response');
       this.serializedResponsePacket_ = readInfo.data;
 
       var lblNameManager = new ResponseLabelPointerManager(readInfo.data);
@@ -254,11 +270,13 @@ DNSQueryManager.prototype.sendRequest = function() {
       packetDeserializer.deserializePacket();
       this.responsePacket_ = packetDeserializer.getDeserializedPacket();
 
-      this.consoleFnc_('Query response contains ' +
-                this.responsePacket_.getAnswerRecordCount() + ' answer ' +
-                'records');
+      this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+          'Query response contains ' +
+          this.responsePacket_.getAnswerRecordCount() + ' answer ' +
+          'records');
 
-      packetResponseSuccessful = true;
+      this.queryResultStatus_ =
+        DNSQueryManager.QueryResultStatus.SUCCESS_PACKET_PARSE;
       cleanUp_.apply(this);
     };
 
@@ -280,11 +298,13 @@ DNSQueryManager.prototype.sendRequest = function() {
     */
    function onDataWritten_(writeInfo) {
      if (writeInfo.bytesWritten != this.serializedQueryPacket_.byteLength) {
-       this.consoleFnc_('Error writing DNS packet.');
+       this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.ERROR,
+           'Error writing DNS packet.');
        chrome.socket.destroy(this.socketId_);
      } else {
-       this.consoleFnc_('Successfully sent ' + writeInfo.bytesWritten +
-            ' bytes in a DNS packet');
+       this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+           'Successfully sent ' + writeInfo.bytesWritten +
+           ' bytes in a DNS packet');
        readData_.apply(this);
      }
    };
@@ -306,10 +326,12 @@ DNSQueryManager.prototype.sendRequest = function() {
      var serializer = new DNSPacketSerializer(this.queryPacket_);
      this.serializedQueryPacket_ = serializer.serialize();
 
-     this.consoleFnc_('Preparing to query server ' + this.dnsServer_ + ' ' +
+     var infoLog = 'Preparing to query server ' + this.dnsServer_ + ' ' +
               'for record type ' +
               DNSUtil.getRecordTypeNameByRecordTypeNum(this.recordTypeNum_) +
-              ' with hostname ' + this.hostname_);
+              ' with hostname ' + this.hostname_;
+     this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+         infoLog);
 
      chrome.socket.write(this.socketId_,
                           this.serializedQueryPacket_,
@@ -324,7 +346,9 @@ DNSQueryManager.prototype.sendRequest = function() {
     */
    function onConnectedCallback_(result) {
      this.socketInfo_ = new SocketInfo(this.socketId_);
-     this.socketInfo_.setConsoleFunction(this.consoleFnc_);
+
+     // TODO: Change to setOutputRecordManager
+     //this.socketInfo_.setConsoleFunction(this.consoleFnc_);
      this.socketInfo_.printSocketInfo();
      sendData_.apply(this);
    };

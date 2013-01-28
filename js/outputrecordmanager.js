@@ -37,7 +37,7 @@ OutputRecorderManager.prototype.outputEntries_ = null;
  */
 OutputRecorderManager.prototype.pushEntry = function(level, msg) {
   var record = new OutputRecord(level, msg);
-  this.outputEntries_.push();
+  this.outputEntries_.push(record);
 };
 
 /**
