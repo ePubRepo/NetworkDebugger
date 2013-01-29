@@ -44,6 +44,10 @@ body {
    border-bottom: 1px solid #E5E5E5;
 }
 
+#advancedOptionsToggleBtn {
+	float: right;
+}
+
 #console {
    width: 100%;
    min-height: 200px;

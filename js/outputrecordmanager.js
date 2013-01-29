@@ -6,10 +6,6 @@
  * @author ebeach@google.com (Eric Beach)
  */
 
-// in each text object, create an OutputRecorderManager object and by default
-// pipe everything that is suppose to go to the console function to this
-// object and then if there is an overridden console function send this
-// to the console function
 
 /**
  * Receive output messages from one test and record it along with an associated

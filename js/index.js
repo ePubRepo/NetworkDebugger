@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // add listener for running general diagnostics
   document.getElementById('runDiagnosticsBtn').addEventListener('click',
       basicDiagnostics);
+  document.getElementById('advancedOptionsToggleBtn').addEventListener('click',
+      toggledvancedOptions);
 
   // add listeners for tcp telnet tests
   document.getElementById('gHttpBtn').addEventListener('click',
@@ -46,27 +48,45 @@ function ndbConsole(outStr) {
    document.getElementById('console').value += strToAppend;
 }
 
+// function for callback
+function finishedFnc(completedDnsQueryManager) {
+  var analyzer = new DNSResponsePacketAnalyzer(completedDnsQueryManager);
+  analyzer.defaultPrintResponse();
+  var analyzedQueryManager = analyzer.getDnsQueryManager();
+  var finishedOutputRecordManager =
+    analyzer.getDnsQueryManager().getOutputRecordManager();
+  var finishedOutputRecords = finishedOutputRecordManager.getOutputRecords();
+
+  for (var n = 0; n < finishedOutputRecords.length; n++) {
+    ndbConsole(finishedOutputRecords[n].getMessage());
+  }
+}
+
 
 function basicDiagnostics() {
-  // function for callback
-  function finishedFnc(completedDnsQuery) {
-    console.log(completedDnsQuery);
-    ndbConsole('dddd');
-  }
-  
   // hosts to query Google Public DNS
   var arrHostsToQuery = ['google.com', 'mail.google.com', 'docs.google.com',
                          'accounts.google.com', 'apis.google.com'];
 
   for (var i = 0; i < arrHostsToQuery.length; i++) {
+    var outputRecordManager = new OutputRecorderManager();
     var gDnsQuery = new DNSQueryManager(arrHostsToQuery[i],
         DNSUtil.RecordNumber.A,
         '8.8.8.8',
-        finishedFnc);
+        finishedFnc,
+        outputRecordManager);
     gDnsQuery.sendRequest();
   }
 }
 
+function toggledvancedOptions() {
+  document.getElementById('test-detailed-options').className =
+    'center-container display-full';
+  document.getElementById('test-basic-run').className =
+    'center-container display-none';
+  document.getElementById('advancedOptionsToggleBtn').value =
+    'Basic Mode';
+}
 
 function l3DnsBtnClick() {
    var inputHelper = new DNSInputHelper();

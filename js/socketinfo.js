@@ -8,11 +8,14 @@
 
 
 /**
- * @param {int} id ID of Chrome socket.
+ * @param {integer} id ID of Chrome socket.
+ * @param {OutputRecordManager} outputRecordManager Manage and record socket
+ *                                                  info.
  * @constructor
  */
-SocketInfo = function(id) {
+SocketInfo = function(id, outputRecordManager) {
   this.socketId_ = id;
+  this.outputRecordManager_ = outputRecordManager;
 };
 
 
@@ -25,35 +28,33 @@ SocketInfo.prototype.socketId_ = null;
 
 
 /**
- * Function that receives information for the console.
- * @param {string} str Text to be written to console.
- * @type {function(string)}
+ * Object to manage output records from.
+ * @type {OutputRecordManager}
  * @private
  */
-SocketInfo.prototype.consoleFnc_ = function(str) {
-  console.log(str);
-};
+SocketInfo.prototype.outputRecordManager_ = null;
 
 
 /**
  * Set the function to be used for console logging.
- * @param {function(string)} fnc Function to pass console messages to.
+ * @param {OutputRecordManager} manager Object to record output information.
  */
-SocketInfo.prototype.setConsoleFunction = function(fnc) {
-  this.consoleFnc_ = fnc;
+SocketInfo.prototype.setOutputRecordManager = function(manager) {
+  this.outputRecordManager_ = manager;
 };
 
 
 /**
- * Print information about this socket to an available console function.
+ * Record information about this socket to an available console function.
  */
-SocketInfo.prototype.printSocketInfo = function() {
+SocketInfo.prototype.recordSocketInfo = function() {
   var parseSocketInfo = function(socketInfo) {
     var strSocketInfo = 'A ' + socketInfo.socketType + ' connection from ' +
         socketInfo.localAddress + ':' + socketInfo.localPort + ' to ' +
         socketInfo.peerAddress + ':' + socketInfo.peerPort + ' now exists';
 
-    this.consoleFnc_(strSocketInfo);
+    this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
+                                        strSocketInfo);
   };
   chrome.socket.getInfo(this.socketId_, parseSocketInfo.bind(this));
 };

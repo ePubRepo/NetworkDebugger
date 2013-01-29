@@ -16,15 +16,13 @@
  *                                                     when query done.
  * @constructor
  */
-// TODO: callback function should have status
 DNSQueryManager = function(hostname, recordTypeNum,
-                           dnsServer, finalCallbackFnc) {
+                           dnsServer, finalCallbackFnc, outputRecordManager) {
   this.hostname_ = hostname;
   this.recordTypeNum_ = recordTypeNum;
   this.dnsServer_ = dnsServer;
   this.finalCallbackFnc_ = finalCallbackFnc;
-
-  this.outputRecordManager_ = new OutputRecorderManager();
+  this.outputRecordManager_ = outputRecordManager;
 };
 
 
@@ -140,6 +138,14 @@ DNSQueryManager.prototype.queryResultStatus_ = null;
 
 
 /**
+ * Get the DNS packet returned in the query.
+ * @return {DNSPacket} DNS packet returned in DNS query.
+ */
+DNSQueryManager.prototype.getResponsePacket = function() {
+  return this.responsePacket_;
+};
+
+/**
  * Enum to capture the result of a DNS query.
  * @enum {integer}
  */
@@ -155,35 +161,6 @@ DNSQueryManager.QueryResultStatus = {
  */
 DNSQueryManager.prototype.getOutputRecordManager = function() {
   return this.outputRecordManager_;
-};
-
-
-/**
- * Print the default packet response.
- */
-// TODO: Move out of this object.. it should not be here
-DNSQueryManager.prototype.defaultPrintResponse = function() {
-    // represent question section
-    this.responsePacket_.each(DNSUtil.PacketSection.QUESTION,
-                              function(dnsPacket) {}.bind(this));
-
-    // represent answer section
-    var str = '';
-    this.responsePacket_.each(DNSUtil.PacketSection.ANSWER,
-      function(dnsPacket) {
-        str = '';
-        str += DNSUtil.getRecordTypeNameByRecordTypeNum(
-                                     dnsPacket.getType()) +
-        ' record with name ' +
-        dnsPacket.getName() + ' and TTL ' + dnsPacket.getTTL() +
-        ' and data section of ' + dnsPacket.getDataText() + '\r\n';
-        this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
-          str);
-      }.bind(this));
-
-    // represent authority section
-    this.responsePacket_.each(DNSUtil.PacketSection.AUTHORITY,
-                              function(dnsPacket) {});
 };
 
 
@@ -345,11 +322,10 @@ DNSQueryManager.prototype.sendRequest = function() {
     * @private
     */
    function onConnectedCallback_(result) {
-     this.socketInfo_ = new SocketInfo(this.socketId_);
+     this.socketInfo_ = new SocketInfo(this.socketId_,
+                                       this.outputRecordManager_);
 
-     // TODO: Change to setOutputRecordManager
-     //this.socketInfo_.setConsoleFunction(this.consoleFnc_);
-     this.socketInfo_.printSocketInfo();
+     this.socketInfo_.recordSocketInfo();
      sendData_.apply(this);
    };
 
