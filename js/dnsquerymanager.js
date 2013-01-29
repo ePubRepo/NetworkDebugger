@@ -204,7 +204,7 @@ DNSQueryManager.prototype.sendRequest = function() {
      */
     function cleanUp_() {
       chrome.socket.destroy(this.socketId_);
-      this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+      this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
           'Socket closed');
 
       if (this.queryResultStatus_ ==
@@ -219,7 +219,7 @@ DNSQueryManager.prototype.sendRequest = function() {
      * @private
      */
     function timeout_() {
-      this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+      this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
           'Received no response in ' + udpTimeoutSec +
           ' seconds, closing socket');
       clearTimeout(udpTimeoutFunction);
@@ -247,7 +247,7 @@ DNSQueryManager.prototype.sendRequest = function() {
       packetDeserializer.deserializePacket();
       this.responsePacket_ = packetDeserializer.getDeserializedPacket();
 
-      this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+      this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
           'Query response contains ' +
           this.responsePacket_.getAnswerRecordCount() + ' answer ' +
           'records');
@@ -279,7 +279,7 @@ DNSQueryManager.prototype.sendRequest = function() {
            'Error writing DNS packet.');
        chrome.socket.destroy(this.socketId_);
      } else {
-       this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+       this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
            'Successfully sent ' + writeInfo.bytesWritten +
            ' bytes in a DNS packet');
        readData_.apply(this);
@@ -307,7 +307,7 @@ DNSQueryManager.prototype.sendRequest = function() {
               'for record type ' +
               DNSUtil.getRecordTypeNameByRecordTypeNum(this.recordTypeNum_) +
               ' with hostname ' + this.hostname_;
-     this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+     this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
          infoLog);
 
      chrome.socket.write(this.socketId_,

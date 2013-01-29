@@ -39,17 +39,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function ndbConsole(outStr) {
+function ndbConsole(outStr, logLevel) {
    var now = new Date();
    var strDate = now.getUTCFullYear() + '-' + (now.getUTCMonth() + 1) + '-' +
       now.getUTCDate() + ' ' + now.getUTCHours() + ':' + now.getUTCMinutes() +
       ':' + now.getUTCSeconds() + '.' + now.getUTCMilliseconds() + ' UTC';
+
    var strToAppend = strDate + '\r\n' + outStr + '\r\n\r\n';
    document.getElementById('console').value += strToAppend;
 }
 
-// function for callback
-function finishedFnc(completedDnsQueryManager) {
+// function for callback and display of DNS results
+function finishedDnsFnc(completedDnsQueryManager) {
   var analyzer = new DNSResponsePacketAnalyzer(completedDnsQueryManager);
   analyzer.defaultPrintResponse();
   var analyzedQueryManager = analyzer.getDnsQueryManager();
@@ -58,7 +59,8 @@ function finishedFnc(completedDnsQueryManager) {
   var finishedOutputRecords = finishedOutputRecordManager.getOutputRecords();
 
   for (var n = 0; n < finishedOutputRecords.length; n++) {
-    ndbConsole(finishedOutputRecords[n].getMessage());
+    ndbConsole(finishedOutputRecords[n].getMessage(),
+               finishedOutputRecords[n].getLevel());
   }
 }
 
@@ -73,28 +75,21 @@ function basicDiagnostics() {
     var gDnsQuery = new DNSQueryManager(arrHostsToQuery[i],
         DNSUtil.RecordNumber.A,
         '8.8.8.8',
-        finishedFnc,
+        finishedDnsFnc,
         outputRecordManager);
     gDnsQuery.sendRequest();
   }
 }
 
-function toggledvancedOptions() {
-  document.getElementById('test-detailed-options').className =
-    'center-container display-full';
-  document.getElementById('test-basic-run').className =
-    'center-container display-none';
-  document.getElementById('advancedOptionsToggleBtn').value =
-    'Basic Mode';
-}
-
 function l3DnsBtnClick() {
    var inputHelper = new DNSInputHelper();
    if (inputHelper.isValidHostnameEntered()) {
+     var outputRecordManager = new OutputRecorderManager();
      var gDnsQuery = new DNSQueryManager(inputHelper.getHostnameEntered(),
          inputHelper.getRecordType(),
-         '209.244.0.3');
-     gDnsQuery.setConsoleFunction(ndbConsole);
+         '209.244.0.3',
+         finishedDnsFnc,
+         outputRecordManager);
      gDnsQuery.sendRequest();
    }
 }
@@ -103,10 +98,12 @@ function l3DnsBtnClick() {
 function oDnsBtnClick() {
    var inputHelper = new DNSInputHelper();
    if (inputHelper.isValidHostnameEntered()) {
+     var outputRecordManager = new OutputRecorderManager();
      var gDnsQuery = new DNSQueryManager(inputHelper.getHostnameEntered(),
          inputHelper.getRecordType(),
-         '208.67.222.222');
-     gDnsQuery.setConsoleFunction(ndbConsole);
+         '208.67.222.222',
+         finishedDnsFnc,
+         outputRecordManager);
      gDnsQuery.sendRequest();
    }
 }
@@ -115,20 +112,24 @@ function oDnsBtnClick() {
 function gDnsBtnClick() {
    var inputHelper = new DNSInputHelper();
    if (inputHelper.isValidHostnameEntered()) {
+     var outputRecordManager = new OutputRecorderManager();
      var gDnsQuery = new DNSQueryManager(inputHelper.getHostnameEntered(),
          inputHelper.getRecordType(),
-         '8.8.8.8');
-     gDnsQuery.setConsoleFunction(ndbConsole);
+         '8.8.8.8',
+         finishedDnsFnc,
+         outputRecordManager);
      gDnsQuery.sendRequest();
    }
 }
 
 
 function whoAmIDnsBtnClick() {
+  var outputRecordManager = new OutputRecorderManager();
     var gDnsQuery = new DNSQueryManager('o-o.myaddr.google.com',
             DNSUtil.RecordNumber.TXT,
-            '8.8.8.8');
-        gDnsQuery.setConsoleFunction(ndbConsole);
+            '8.8.8.8',
+            finishedDnsFnc,
+            outputRecordManager);
         gDnsQuery.sendRequest();
 }
 
@@ -137,10 +138,12 @@ function customDnsBtnClick() {
     var inputHelper = new DNSInputHelper();
     if (inputHelper.isValidHostnameEntered() &&
             inputHelper.isValidCustomResolverIpEntered()) {
+      var outputRecordManager = new OutputRecorderManager();
       var gDnsQuery = new DNSQueryManager(inputHelper.getHostnameEntered(),
           inputHelper.getRecordType(),
-          inputHelper.getCustomResolverIp());
-      gDnsQuery.setConsoleFunction(ndbConsole);
+          inputHelper.getCustomResolverIp(),
+          finishedDnsFnc,
+          outputRecordManager);
       gDnsQuery.sendRequest();
     }
 }
@@ -181,6 +184,20 @@ function dHttpBtnClick() {
    objTelnet.createSocket_();
 }
 
+function networkInterfaceInformationBtnClick() {
+  function printOutput(outputRecordManager) {
+    var nicOutputRecords = outputRecordManager.getOutputRecords();
+    for (var j = 0; j < nicOutputRecords.length; j++) {
+      ndbConsole(nicOutputRecords[j].getMessage(),
+                 nicOutputRecords[j].getLevel());
+    }
+  }
+
+  var outputRecordManager = new OutputRecorderManager();
+  var nicInfo = new NetworkInterfaceInformation(outputRecordManager,
+                                                printOutput);
+  nicInfo.getNicInformation();
+}
 
 function consoleCopyBtnBtnClick() {
    document.getElementById('console').select();
@@ -192,9 +209,19 @@ function consoleClearBtnBtnClick() {
    document.getElementById('console').value = '';
 }
 
-
-function networkInterfaceInformationBtnClick() {
-   var nicInfo = new NetworkInterfaceInformation();
-   nicInfo.setConsoleFunction(ndbConsole);
-   nicInfo.printNicInformation();
+function toggledvancedOptions() {
+  var toggleBtn = document.getElementById('advancedOptionsToggleBtn');
+  if (toggleBtn.value == 'Advanced Options') {
+    document.getElementById('test-detailed-options').className =
+      'center-container display-full';
+    document.getElementById('test-basic-run').className =
+      'center-container display-none';
+    toggleBtn.value = 'Basic Mode';
+  } else {
+    document.getElementById('test-detailed-options').className =
+      'center-container display-none';
+    document.getElementById('test-basic-run').className =
+      'center-container display-full';
+    toggleBtn.value = 'Advanced Options';
+  }
 }

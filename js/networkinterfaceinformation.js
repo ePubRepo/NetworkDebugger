@@ -8,35 +8,40 @@
 
 
 /**
+ * Capture information about currently running network interfaces.
+ * @param {OutputRecorderManager} outputRecordManager Manage output logs.
+ * @param {function(OutputRecorderManager)} completedCallbackFnc Function to
+ *                                          call when NIC information is
+ *                                          populated.
  * @constructor
  */
-NetworkInterfaceInformation = function() {};
+NetworkInterfaceInformation = function(outputRecordManager,
+                                       completedCallbackFnc) {
+  this.outputRecordManager_ = outputRecordManager;
+  this.completedCallbackFnc_ = completedCallbackFnc;
+};
 
 
 /**
- * Function to log information to the console.
- * @param {string} str Text to be written to the console.
- * @type {function(string)}
+ * Function to call upon completion of population of network interface info.
+ * @type {function(OutputRecorderManager)}
  * @private
  */
-NetworkInterfaceInformation.prototype.consoleFnc_ = function(str) {
-  console.log(str);
-};
+NetworkInterfaceInformation.prototype.completedCallbackFnc_ = null;
 
 
 /**
- * Set the function used to log information to the console.
- * @param {function(string)} fnc Function to long information to the console.
+ * Record output diagnostic information.
+ * @type {OutputRecorderManager}
+ * @private
  */
-NetworkInterfaceInformation.prototype.setConsoleFunction = function(fnc) {
-  this.consoleFnc_ = fnc;
-};
+NetworkInterfaceInformation.prototype.outputRecordManager_ = null;
 
 
 /**
- * Print NIC information to an available console.
+ * Print NIC information to output record manager.
  */
-NetworkInterfaceInformation.prototype.printNicInformation = function() {
+NetworkInterfaceInformation.prototype.getNicInformation = function() {
   var receiveNicInfo = function(info) {
     var strNicInfo = 'There are ' + info.length +
        ' network interfaces on this machine.\r\n';
@@ -47,7 +52,9 @@ NetworkInterfaceInformation.prototype.printNicInformation = function() {
     }
     strNicInfo = strNicInfo.substring(0, strNicInfo.length - 2);
 
-    this.consoleFnc_(strNicInfo);
+    this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.INFO,
+        strNicInfo);
+    this.completedCallbackFnc_(this.outputRecordManager_);
   };
   chrome.socket.getNetworkList(receiveNicInfo.bind(this));
 };
