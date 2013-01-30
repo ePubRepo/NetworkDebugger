@@ -35,7 +35,7 @@ DNSRecordCNAME.prototype.cname_ = null;
 
 /**
  * Set the cname of the record.
- * @param {string} txt Text value.
+ * @param {string} cname Text value.
  */
 DNSRecordCNAME.prototype.setCname = function(cname) {
   this.cname_ = cname;

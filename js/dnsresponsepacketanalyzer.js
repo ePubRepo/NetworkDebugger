@@ -4,7 +4,7 @@
  * Parse a completed DNS response.
  * @param {DNSQueryManager} queryManager DNS query manager with query and
  *                                       response.
- * @this
+ * @constructor
  */
 DNSResponsePacketAnalyzer = function(queryManager) {
   this.dnsQueryManager_ = queryManager;
@@ -32,27 +32,65 @@ DNSResponsePacketAnalyzer.googleIp6Netblock = [
 
 
 /**
- * 
+ * Determine whether an IP is a part of a CIDR range.
+ * @param {string} testIp IPv4 address.
+ * @param {string} cidrRange CIDR range (e.g., 173.194.0.0/16).
+ * @return {boolean} Whether address is in a specific IPv4 CIDR range.
  */
-DNSResponsePacketAnalyzer.isIp4AddressInCidrBlock = function(ip, cidrRange) {
-  return false;
+DNSResponsePacketAnalyzer.isIp4AddressInCidrBlock = function(testIp,
+                                                             cidrRange) {
+  function pad(strNumber, length) {
+    while (strNumber.length < length) {
+      strNumber = '0' + strNumber;
+    }
+    return strNumber;
+  }
+
+  // Step 1: Parse basic variables
+  var cidrIpAddressBase = cidrRange.substring(0, cidrRange.indexOf('/'));
+  var maskBitsNum = Number(cidrRange.substring(cidrRange.indexOf('/') + 1));
+
+  // Step 2: Convert test address to binary string
+  var octectTestArr = testIp.split('.');
+  var binaryAddressTestIp = '';
+  for (var i = 0; i < octectTestArr.length; i++) {
+    var decimalOctet = Number(octectTestArr[i]);
+    var binaryOctet = DNSUtil.baseConversion(decimalOctet, 2, 10);
+    var paddedBinaryOctet = pad(binaryOctet, 8);
+    binaryAddressTestIp += paddedBinaryOctet;
+  }
+
+  // Step 3: Convert CIDR address base range to binary string
+  var octectCidrArr = cidrIpAddressBase.split('.');
+  var binaryAddressCidrIp = '';
+  for (var n = 0; n < octectCidrArr.length; n++) {
+    var decimalOctet = Number(octectCidrArr[n]);
+    var binaryOctet = DNSUtil.baseConversion(decimalOctet, 2, 10);
+    var paddedBinaryOctet = pad(binaryOctet, 8);
+    binaryAddressCidrIp += paddedBinaryOctet;
+  }
+
+  // Step 4: See if bits of testIp match first mask bits of binaryAddressStr
+  var cidrCompare = binaryAddressCidrIp.substr(0, maskBitsNum);
+  var testCompare = binaryAddressTestIp.substr(0, maskBitsNum);
+  return (cidrCompare == testCompare);
 };
 
 
 /**
- * 
+ * Determine whether an IPv4 address belongs to Google's netblocks.
+ * @param {string} addressToTest IPv4 address to test.
  * @return {boolean} Whether address is in Google's IPv4 netblocks.
  */
 DNSResponsePacketAnalyzer.isGoogleIp4Address = function(addressToTest) {
-  for (var i = 0;
-       i < DNSResponsePacketAnalyzer.googleIp4Netblock.length;
-       i++) {
-    if (!DNSResponsePacketAnalyzer.isIp4AddressInCidrBlock(addressToTest,
-                                                          cidrRange)) {
-      return false;
+  var numNetblocks = DNSResponsePacketAnalyzer.googleIp4Netblock.length;
+  for (var i = 0; i < numNetblocks; i++) {
+    if (DNSResponsePacketAnalyzer.isIp4AddressInCidrBlock(addressToTest,
+        DNSResponsePacketAnalyzer.googleIp4Netblock[i])) {
+      return true;
     }
   }
-  return true;
+  return false;
 };
 
 
@@ -63,6 +101,7 @@ DNSResponsePacketAnalyzer.isGoogleIp4Address = function(addressToTest) {
  * @private
  */
 DNSResponsePacketAnalyzer.prototype.dnsQueryManager_ = null;
+
 
 /**
  * Return DNS query manager containing the query and its response.
@@ -87,7 +126,7 @@ DNSResponsePacketAnalyzer.prototype.defaultPrintResponse = function() {
     // represent answer section
     function analyzeAnswerResponsePackets(dnsRecord) {
 
-      // add general information to the DEBUG logs 
+      // add general information to the DEBUG logs
       var str = '';
       str += DNSUtil.getRecordTypeNameByRecordTypeNum(
           dnsRecord.getType()) +
@@ -106,6 +145,10 @@ DNSResponsePacketAnalyzer.prototype.defaultPrintResponse = function() {
             this.dnsQueryManager_.getOutputRecordManager().pushEntry(
                 OutputRecord.DetailLevel.ERROR,
                 'Query returned non-Google IP, ' + ip);
+          } else {
+            this.dnsQueryManager_.getOutputRecordManager().pushEntry(
+                OutputRecord.DetailLevel.DEBUG,
+                'Query returned Google IP, ' + ip);
           }
           break;
       }

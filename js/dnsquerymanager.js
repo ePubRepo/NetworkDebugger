@@ -14,10 +14,12 @@
  * @param {string} dnsServer Server to query against records.
  * @param {function(DNSQueryManager)} finalCallbackFnc Callback function run
  *                                                     when query done.
+ * @param {OutputRecordManager} outputRecordManager Manage output logs.
  * @constructor
  */
 DNSQueryManager = function(hostname, recordTypeNum,
-                           dnsServer, finalCallbackFnc, outputRecordManager) {
+                           dnsServer, finalCallbackFnc,
+                           outputRecordManager) {
   this.hostname_ = hostname;
   this.recordTypeNum_ = recordTypeNum;
   this.dnsServer_ = dnsServer;
@@ -133,6 +135,7 @@ DNSQueryManager.prototype.finalCallbackFnc_ = null;
 /**
  * Store the status of the DNS query.
  * @type {DNSQueryManager.QueryResultStatus} Status of the DNS query.
+ * @private
  */
 DNSQueryManager.prototype.queryResultStatus_ = null;
 
@@ -212,7 +215,7 @@ DNSQueryManager.prototype.sendRequest = function() {
         this.finalCallbackFnc_(this);
       }
     };
-    
+
     /**
      * Clean up socket as no response is coming back.
      * @this {DNSQueryManager}
@@ -226,7 +229,7 @@ DNSQueryManager.prototype.sendRequest = function() {
       this.queryResultStatus_ = DNSQueryManager.QueryResultStatus.FAIL_TIMEOUT;
       cleanUp_.apply(this);
     };
-    
+
 
     /**
      * @param {ReadInfo} readInfo Information about data read over the socket.
