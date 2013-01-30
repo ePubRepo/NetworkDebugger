@@ -34,8 +34,25 @@ DNSResponsePacketAnalyzer.googleIp6Netblock = [
 /**
  * 
  */
-DNSResponsePacketAnalyzer.isGoogleIp4Address = function(addressToTest) {
+DNSResponsePacketAnalyzer.isIp4AddressInCidrBlock = function(ip, cidrRange) {
   return false;
+};
+
+
+/**
+ * 
+ * @return {boolean} Whether address is in Google's IPv4 netblocks.
+ */
+DNSResponsePacketAnalyzer.isGoogleIp4Address = function(addressToTest) {
+  for (var i = 0;
+       i < DNSResponsePacketAnalyzer.googleIp4Netblock.length;
+       i++) {
+    if (!DNSResponsePacketAnalyzer.isIp4AddressInCidrBlock(addressToTest,
+                                                          cidrRange)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 
