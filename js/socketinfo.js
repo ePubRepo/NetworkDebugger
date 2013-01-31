@@ -50,11 +50,12 @@ SocketInfo.prototype.setOutputRecordManager = function(manager) {
 SocketInfo.prototype.recordSocketInfo = function() {
   var parseSocketInfo = function(socketInfo) {
     var strSocketInfo = 'A ' + socketInfo.socketType + ' connection from ' +
-        socketInfo.localAddress + ':' + socketInfo.localPort + ' to ' +
-        socketInfo.peerAddress + ':' + socketInfo.peerPort + ' now exists';
+      socketInfo.localAddress + ':' + socketInfo.localPort + ' to ' +
+      socketInfo.peerAddress + ':' + socketInfo.peerPort + ' now exists';
 
     this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
                                         strSocketInfo);
   };
+
   chrome.socket.getInfo(this.socketId_, parseSocketInfo.bind(this));
 };

@@ -75,18 +75,17 @@ DNSInputHelper.prototype.getCustomResolverIp = function() {
  * @return {int} DNS record type number.
  */
 DNSInputHelper.prototype.getRecordType = function() {
-   var recordType = document.getElementById(this.domIdDnsRecordType_).value;
-   switch (recordType) {
-      case 'MX':
-         return DNSUtil.RecordNumber.MX;
-      case 'AAAA':
-         return DNSUtil.RecordNumber.AAAA;
-      case 'CNAME':
-          return DNSUtil.RecordNumber.CNAME;
-      case 'TXT':
-          return DNSUtil.RecordNumber.TXT;
-      default:
-         return DNSUtil.RecordNumber.A;
-   }
+  var recordType = document.getElementById(this.domIdDnsRecordType_).value;
+  switch (recordType) {
+    case 'MX':
+       return DNSUtil.RecordNumber.MX;
+    case 'AAAA':
+       return DNSUtil.RecordNumber.AAAA;
+    case 'CNAME':
+       return DNSUtil.RecordNumber.CNAME;
+    case 'TXT':
+       return DNSUtil.RecordNumber.TXT;
+    default:
+      return DNSUtil.RecordNumber.A;
+  }
 };
-

@@ -170,7 +170,7 @@ function gHttpBtnClick() {
 
 
 function mHttpBtnClick() {
-  var outputRecordManager = new OutputRecorderManager(); 
+  var outputRecordManager = new OutputRecorderManager();
   var objTelnet = new Telnet('mail.google.com', 80, outputRecordManager);
    objTelnet.
       setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: mail.google.com\r\n\r\n');
@@ -180,7 +180,7 @@ function mHttpBtnClick() {
 
 
 function dHttpBtnClick() {
-  var outputRecordManager = new OutputRecorderManager(); 
+  var outputRecordManager = new OutputRecorderManager();
   var objTelnet = new Telnet('drive.google.com', 80, outputRecordManager);
    objTelnet.
      setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: drive.google.com\r\n\r\n');

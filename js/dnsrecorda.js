@@ -19,11 +19,13 @@ DNSRecordA = function(name, ttl) {
   this.ttl_ = ttl;
 };
 
+
 // DNSRecordA inherits from DNSRecord
 // Replace with goog.inherits
 DNSRecordA.prototype = new DNSRecord();
 DNSRecordA.prototype.constructor = DNSRecordA;
 DNSRecordA.prototype.parent = DNSRecordA.prototype;
+
 
 /**
  * IPv4 address.

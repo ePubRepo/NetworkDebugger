@@ -19,11 +19,13 @@ DNSRecordMX = function(name, ttl) {
   this.ttl_ = ttl;
 };
 
+
 // DNSRecordMX inherits from DNSRecord
 // Replace with goog.inherits
 DNSRecordMX.prototype = new DNSRecord();
 DNSRecordMX.prototype.constructor = DNSRecordMX;
 DNSRecordMX.prototype.parent = DNSRecordMX.prototype;
+
 
 /**
  * Mail exchange host.
@@ -39,6 +41,7 @@ DNSRecordMX.prototype.mailExchanger_ = null;
  * @private
  */
 DNSRecordMX.prototype.preferenceNumber_ = null;
+
 
 /**
  * Set the mail exchange of the record.

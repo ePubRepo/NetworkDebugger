@@ -19,11 +19,13 @@ DNSRecordCNAME = function(name, ttl) {
   this.ttl_ = ttl;
 };
 
+
 // DNSRecordTXT inherits from DNSRecord
 // Replace with goog.inherits
 DNSRecordCNAME.prototype = new DNSRecord();
 DNSRecordCNAME.prototype.constructor = DNSRecordCNAME;
 DNSRecordCNAME.prototype.parent = DNSRecordCNAME.prototype;
+
 
 /**
  * Text value.

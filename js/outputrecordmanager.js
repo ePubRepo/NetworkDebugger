@@ -36,6 +36,7 @@ OutputRecorderManager.prototype.pushEntry = function(level, msg) {
   this.outputEntries_.push(record);
 };
 
+
 /**
  * Return set of output entries.
  * @return {Array.OutputRecord} Set of output entries with log records.

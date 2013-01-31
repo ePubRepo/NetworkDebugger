@@ -118,22 +118,23 @@ DNSResponsePacketAnalyzer.prototype.getDnsQueryManager = function() {
  * Print the default packet response.
  */
 DNSResponsePacketAnalyzer.prototype.defaultPrintResponse = function() {
-    // represent question section
-    this.dnsQueryManager_.getResponsePacket().each(
-                              DNSUtil.PacketSection.QUESTION,
-                              function(dnsPacket) {}.bind(this));
+  // represent question section
+  this.dnsQueryManager_.getResponsePacket().each(
+                            DNSUtil.PacketSection.QUESTION,
+                            function(dnsPacket) {}.bind(this));
 
-    // represent answer section
-    function analyzeAnswerResponsePackets(dnsRecord) {
+  // represent answer section
+  function analyzeAnswerResponsePackets(dnsRecord) {
 
-      // add general information to the DEBUG logs
-      var str = '';
-      str += DNSUtil.getRecordTypeNameByRecordTypeNum(
-          dnsRecord.getType()) +
-      ' record with name ' +
-      dnsRecord.getName() + ' and TTL ' + dnsRecord.getTTL() +
-      ' and data section of ' + dnsRecord.getDataText() + '\r\n';
-      this.dnsQueryManager_.getOutputRecordManager().pushEntry(
+    // add general information to the DEBUG logs
+    var str = '';
+    str += DNSUtil.getRecordTypeNameByRecordTypeNum(
+           dnsRecord.getType()) +
+           ' record with name ' +
+           dnsRecord.getName() + ' and TTL ' + dnsRecord.getTTL() +
+           ' and data section of ' + dnsRecord.getDataText() + '\r\n';
+
+    this.dnsQueryManager_.getOutputRecordManager().pushEntry(
           OutputRecord.DetailLevel.DEBUG,
           str);
 
@@ -141,16 +142,16 @@ DNSResponsePacketAnalyzer.prototype.defaultPrintResponse = function() {
       switch (dnsRecord.getType()) {
         case DNSUtil.RecordNumber.A:
           var ip = dnsRecord.getIp();
-          if (!DNSResponsePacketAnalyzer.isGoogleIp4Address(ip)) {
-            this.dnsQueryManager_.getOutputRecordManager().pushEntry(
-                OutputRecord.DetailLevel.ERROR,
-                'Query returned non-Google IP, ' + ip);
-          } else {
-            this.dnsQueryManager_.getOutputRecordManager().pushEntry(
-                OutputRecord.DetailLevel.DEBUG,
-                'Query returned Google IP, ' + ip);
-          }
-          break;
+            if (!DNSResponsePacketAnalyzer.isGoogleIp4Address(ip)) {
+              this.dnsQueryManager_.getOutputRecordManager().pushEntry(
+                  OutputRecord.DetailLevel.ERROR,
+                  'Query returned non-Google IP, ' + ip);
+            } else {
+              this.dnsQueryManager_.getOutputRecordManager().pushEntry(
+                  OutputRecord.DetailLevel.DEBUG,
+                  'Query returned Google IP, ' + ip);
+            }
+        break;
       }
     };
 

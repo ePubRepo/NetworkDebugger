@@ -56,5 +56,6 @@ NetworkInterfaceInformation.prototype.getNicInformation = function() {
         strNicInfo);
     this.completedCallbackFnc_(this.outputRecordManager_);
   };
+
   chrome.socket.getNetworkList(receiveNicInfo.bind(this));
 };

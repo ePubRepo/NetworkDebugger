@@ -76,13 +76,19 @@ Telnet.prototype.objSocketInfo_ = null;
  */
 Telnet.prototype.outputRecordManager_ = null;
 
+
 /**
- * 
+ * Function to callback upon completion of the telnet session.
+ * @type {function(OutputRecordManager)}
+ * @private
  */
 Telnet.prototype.completedCallbackFnc_ = null;
 
+
 /**
- * 
+ * Set function to be called when telnet is finished.
+ * @param {function(OutputRecordManager)} fnc Function to call upon completion
+ *                                            of telnet session.
  */
 Telnet.prototype.setCompletedCallbackFnc = function(fnc) {
   this.completedCallbackFnc_ = fnc;
@@ -170,6 +176,7 @@ Telnet.prototype.read_ = function() {
 
 
 /**
+ * Function to call upon completing the writing of data. 
  * @param {WriteInfo} writeInfo Information about data written to host.
  * @see http://developer.chrome.com/apps/socket.html#type-WriteInfo
  * @private
@@ -188,6 +195,7 @@ Telnet.prototype.onWriteCompleteCallback_ = function(writeInfo) {
 Telnet.prototype.write_ = function() {
   this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
       'Prepared to send ' + this.abDataToSend_.byteLength + ' bytes of data');
+
   chrome.socket.write(this.socketId_,
                       this.abDataToSend_,
                       this.onWriteCompleteCallback_.bind(this));
@@ -205,6 +213,7 @@ Telnet.prototype.onConnectedCallback_ = function() {
       'TCP connection with ' + this.host_ +
       ' on port ' + this.port_ + ' established');
   this.objSocketInfo_.recordSocketInfo();
+
 
   /**
    * Receive converted ArrayBuffer.
@@ -241,6 +250,7 @@ Telnet.prototype.createSocket_ = function() {
                           this.port_,
                           this.onConnectedCallback_.bind(this));
   }
+
   chrome.socket.create('tcp', {}, onCreated_.bind(this));
 };
 

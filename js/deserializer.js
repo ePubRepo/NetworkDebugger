@@ -78,7 +78,7 @@ Deserializer.prototype.byte_ = function() {
  * @return {integer} Two bytes of data as a base 10 integer.
  */
 Deserializer.prototype.short = function() {
-    return (this.byte_() << 8) + this.byte_();
+  return (this.byte_() << 8) + this.byte_();
 };
 
 

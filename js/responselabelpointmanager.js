@@ -7,7 +7,6 @@
  */
 
 
-
 /**
  * ResponseLabelPointerManager handles DNS's name compression and labeling,
  * helping re-assemble a name with references.
