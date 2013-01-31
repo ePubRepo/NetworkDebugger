@@ -28,6 +28,13 @@ DNSPacket = function(opt_flags) {
 
 
 /**
+ * 
+ * @private 
+ */
+DNSPacket.prototype.data_ = null;
+
+
+/**
  * Return the number of answer records in the DNS packet.
  * @return {integer} Number of DNS records in the answer section of the
  *                   DNS packet.
@@ -48,22 +55,14 @@ DNSPacket.prototype.push = function(packetSection, dnsRecord) {
 
 
 /**
+ * Invoke a callback function and pass each DNSRecord that is part of a
+ *   specific DNS packet section.
  * @param {DNSUtil.PacketSection} packetSection Section of the DNS record.
+ * @param {function(DNSRecord)} callbackFunction Function to pass each
+ *                                               DNS record that is part of
+ *                                               a section to. 
  */
-//TODO: Clean this up
-DNSPacket.prototype.each = function(packetSection) {
+DNSPacket.prototype.eachRecord = function(packetSection, callbackFunction) {
   var filter = false;
-  var callback;
-  if (arguments.length == 2) {
-    callback = arguments[1];
-  } else {
-    filter = arguments[1];
-    callback = arguments[2];
-  }
-
-  this.data_[packetSection].forEach(function(rec) {
-    if (!filter || rec.type == filter) {
-        callback(rec);
-    }
-  });
+  this.data_[packetSection].forEach(function(rec) { callbackFunction(rec); });
 };

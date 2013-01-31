@@ -119,7 +119,7 @@ DNSResponsePacketAnalyzer.prototype.getDnsQueryManager = function() {
  */
 DNSResponsePacketAnalyzer.prototype.defaultPrintResponse = function() {
   // represent question section
-  this.dnsQueryManager_.getResponsePacket().each(
+  this.dnsQueryManager_.getResponsePacket().eachRecord(
                             DNSUtil.PacketSection.QUESTION,
                             function(dnsPacket) {}.bind(this));
 
@@ -155,11 +155,11 @@ DNSResponsePacketAnalyzer.prototype.defaultPrintResponse = function() {
       }
     };
 
-    this.dnsQueryManager_.getResponsePacket().each(
+    this.dnsQueryManager_.getResponsePacket().eachRecord(
       DNSUtil.PacketSection.ANSWER, analyzeAnswerResponsePackets.bind(this));
 
     // represent authority section
-    this.dnsQueryManager_.getResponsePacket().each(
+    this.dnsQueryManager_.getResponsePacket().eachRecord(
                               DNSUtil.PacketSection.AUTHORITY,
                               function(dnsPacket) {});
 };

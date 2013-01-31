@@ -176,7 +176,7 @@ Telnet.prototype.read_ = function() {
 
 
 /**
- * Function to call upon completing the writing of data. 
+ * Function to call upon completing the writing of data.
  * @param {WriteInfo} writeInfo Information about data written to host.
  * @see http://developer.chrome.com/apps/socket.html#type-WriteInfo
  * @private

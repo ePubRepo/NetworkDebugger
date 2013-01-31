@@ -10,15 +10,14 @@
 /**
  * Deserializer consumes data from an ArrayBuffer.
  *
- * @param {ArrayBuffer|Unit8Array} arg ArrayBuffer of binary data.
+ * @param {ArrayBuffer|Unit8Array} arrBinaryData ArrayBuffer of binary data.
  * @constructor
  */
-Deserializer = function(arg) {
-  // TODO: cleanup based upon input type
-  if (arg instanceof Uint8Array) {
-    this.view_ = arg;
+Deserializer = function(arrBinaryData) {
+  if (arrBinaryData instanceof Uint8Array) {
+    this.view_ = arrBinaryData;
   } else {
-    this.view_ = new Uint8Array(arg);
+    this.view_ = new Uint8Array(arrBinaryData);
   }
   this.loc_ = 0;
 };
