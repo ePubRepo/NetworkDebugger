@@ -50,6 +50,7 @@ function ndbConsole(outStr, logLevel) {
 }
 
 // function for callback and display of DNS results
+// TODO: Turn this into an object
 function finishedDnsFnc(completedDnsQueryManager) {
   var analyzer = new DNSResponsePacketAnalyzer(completedDnsQueryManager);
   analyzer.defaultPrintResponse();
@@ -67,6 +68,7 @@ function finishedDnsFnc(completedDnsQueryManager) {
 
 function basicDiagnostics() {
   // hosts to query Google Public DNS
+  // TODO: put this in global file
   var arrHostsToQuery = ['google.com', 'mail.google.com', 'docs.google.com',
                          'accounts.google.com', 'apis.google.com'];
 
@@ -149,38 +151,40 @@ function customDnsBtnClick() {
 }
 
 
-function gHttpBtnClick() {
-   var objTelnet = new Telnet('www.google.com', 80);
-   objTelnet.setConsoleFunction(ndbConsole);
-   objTelnet.
-      setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n');
-   objTelnet.createSocket_();
+function printFinishedTelnetOutput(outputRecordManager) {
+  var nicOutputRecords = outputRecordManager.getOutputRecords();
+  for (var j = 0; j < nicOutputRecords.length; j++) {
+    ndbConsole(nicOutputRecords[j].getMessage(),
+               nicOutputRecords[j].getLevel());
+  }
 }
 
-
-function gHttpsBtnClick() {
-   var objTelnet = new Telnet('74.125.228.114', 443);
-   objTelnet.setConsoleFunction(ndbConsole);
+function gHttpBtnClick() {
+  var outputRecordManager = new OutputRecorderManager();
+  var objTelnet = new Telnet('www.google.com', 80, outputRecordManager);
    objTelnet.
       setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n');
+   objTelnet.setCompletedCallbackFnc(printFinishedTelnetOutput);
    objTelnet.createSocket_();
 }
 
 
 function mHttpBtnClick() {
-   var objTelnet = new Telnet('mail.google.com', 80);
-   objTelnet.setConsoleFunction(ndbConsole);
+  var outputRecordManager = new OutputRecorderManager(); 
+  var objTelnet = new Telnet('mail.google.com', 80, outputRecordManager);
    objTelnet.
       setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: mail.google.com\r\n\r\n');
+   objTelnet.setCompletedCallbackFnc(printFinishedTelnetOutput);
    objTelnet.createSocket_();
 }
 
 
 function dHttpBtnClick() {
-   var objTelnet = new Telnet('drive.google.com', 80);
-   objTelnet.setConsoleFunction(ndbConsole);
+  var outputRecordManager = new OutputRecorderManager(); 
+  var objTelnet = new Telnet('drive.google.com', 80, outputRecordManager);
    objTelnet.
      setPlainTextDataToSend('GET / HTTP/1.1\r\nHost: drive.google.com\r\n\r\n');
+   objTelnet.setCompletedCallbackFnc(printFinishedTelnetOutput);
    objTelnet.createSocket_();
 }
 

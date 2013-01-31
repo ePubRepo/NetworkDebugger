@@ -11,11 +11,13 @@
  * Open a TCP connection with a specific host on a specific port.
  * @param {string} host Hostname to open a connection with.
  * @param {integer} port Port number to connect on.
+ * @param {OutputRecordManager} outputRecordManager Manage output logs.
  * @constructor
  */
-Telnet = function(host, port) {
+Telnet = function(host, port, outputRecordManager) {
   this.host_ = host;
   this.port_ = port;
+  this.outputRecordManager_ = outputRecordManager;
 };
 
 
@@ -44,14 +46,6 @@ Telnet.prototype.socketId_ = null;
 
 
 /**
- * Whether the TCP connection is open with the destination host.
- * @type {boolean}
- * @private
- */
-Telnet.prototype.isConnected_ = false;
-
-
-/**
  * ArrayBuffer of binary data to send to destination host.
  * @type {ArrayBuffer}
  * @private
@@ -68,23 +62,31 @@ Telnet.prototype.strDataToSend_ = null;
 
 
 /**
- * Function to print information to the app console.
- * Default function simply logs to the browser's console.
- * @type {function(string)}
- * @param {string} msg Message for the console.
- * @private
- */
-Telnet.prototype.consoleFnc_ = function(msg) {
-  console.log(msg);
-};
-
-
-/**
  * SocketInfo object for the socket used to connect to the destination host.
  * @type {SocketInfo}
  * @private
  */
 Telnet.prototype.objSocketInfo_ = null;
+
+
+/**
+ * Store log/record of technical details.
+ * @type {OutputRecorderManager}
+ * @private
+ */
+Telnet.prototype.outputRecordManager_ = null;
+
+/**
+ * 
+ */
+Telnet.prototype.completedCallbackFnc_ = null;
+
+/**
+ * 
+ */
+Telnet.prototype.setCompletedCallbackFnc = function(fnc) {
+  this.completedCallbackFnc_ = fnc;
+};
 
 
 /**
@@ -120,16 +122,6 @@ Telnet.prototype.stringToArrayBuffer_ = function(str, callback) {
 
 
 /**
- * Set the function to handle console logging for the app.
- * @param {function(string)} fnc Function to handle console information.
- * @type {Function(string)}
- */
-Telnet.prototype.setConsoleFunction = function(fnc) {
-  this.consoleFnc_ = fnc;
-};
-
-
-/**
  * Set the text to send to the host.
  * @param {string} textToSend Text to send to the host.
  */
@@ -151,16 +143,19 @@ Telnet.prototype.onReadCompletedCallback_ = function(readInfo) {
    * @this {Telnet}
    */
   function receiveString_(str) {
-    this.consoleFnc_(str);
+    this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
+        str);
     this.closeSocket_();
+    this.completedCallbackFnc_(this.outputRecordManager_);
   }
 
   if (readInfo.resultCode > 0) {
-    this.consoleFnc_('Successfully read ' + readInfo.resultCode +
-              ' bytes of data');
+    this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
+        'Successfully read ' + readInfo.resultCode + ' bytes of data');
     this.arrayBufferToString_(readInfo.data, receiveString_.bind(this));
   } else {
-    this.consoleFnc_('Error reading data. Code ' + readInfo.resultCode);
+    this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.ERROR,
+        'Error reading data. Code ' + readInfo.resultCode);
   }
 };
 
@@ -180,8 +175,8 @@ Telnet.prototype.read_ = function() {
  * @private
  */
 Telnet.prototype.onWriteCompleteCallback_ = function(writeInfo) {
-  this.consoleFnc_('Successfully sent ' + writeInfo.bytesWritten +
-            ' bytes of data');
+  this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
+      'Successfully sent ' + writeInfo.bytesWritten + ' bytes of data');
   this.read_();
 };
 
@@ -191,8 +186,8 @@ Telnet.prototype.onWriteCompleteCallback_ = function(writeInfo) {
  * @private
  */
 Telnet.prototype.write_ = function() {
-  this.consoleFnc_('Prepared to send ' + this.abDataToSend_.byteLength +
-            ' bytes of data');
+  this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
+      'Prepared to send ' + this.abDataToSend_.byteLength + ' bytes of data');
   chrome.socket.write(this.socketId_,
                       this.abDataToSend_,
                       this.onWriteCompleteCallback_.bind(this));
@@ -204,12 +199,12 @@ Telnet.prototype.write_ = function() {
  * @private
  */
 Telnet.prototype.onConnectedCallback_ = function() {
-  this.isConnected_ = true;
-  this.objSocketInfo_ = new SocketInfo(this.socketId_);
-  this.consoleFnc_('TCP connection with ' + this.host_ +
-            ' on port ' + this.port_ + ' established');
-  this.objSocketInfo_.setConsoleFunction(this.consoleFnc_);
-  this.objSocketInfo_.printSocketInfo();
+  this.objSocketInfo_ = new SocketInfo(this.socketId_,
+                                       this.outputRecordManager_);
+  this.outputRecordManager_.pushEntry(OutputRecord.DetailLevel.DEBUG,
+      'TCP connection with ' + this.host_ +
+      ' on port ' + this.port_ + ' established');
+  this.objSocketInfo_.recordSocketInfo();
 
   /**
    * Receive converted ArrayBuffer.
@@ -256,5 +251,4 @@ Telnet.prototype.createSocket_ = function() {
  */
 Telnet.prototype.closeSocket_ = function() {
   chrome.socket.disconnect(this.socketId_);
-  this.isConnected_ = false;
 };
