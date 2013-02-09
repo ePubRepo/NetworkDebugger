@@ -6,6 +6,7 @@
     <link href="css/index.css" rel="stylesheet">
     <script type="text/javascript" src="js/deserializer.js"></script>
     <script type="text/javascript" src="js/dnsutil.js"></script>
+    <script type="text/javascript" src="js/util.js"></script>
     <script type="text/javascript" src="js/dnsinputhelper.js"></script>
     <script type="text/javascript" src="js/dnsrecord.js"></script>
     <script type="text/javascript" src="js/dnsrecorda.js"></script>
@@ -24,34 +25,49 @@
     <script type="text/javascript" src="js/outputrecord.js"></script>
     <script type="text/javascript" src="js/outputrecordmanager.js"></script>
     <script type="text/javascript" src="js/networkinterfaceinformation.js"></script>
+    <script type="text/javascript" src="js/testconfigurationparser.js"></script>
     <script type="text/javascript" src="js/dnsquerymanager.js"></script>
+    <script type="text/javascript" src="js/appguimanager.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
 </head>
 <body>
-<!-- Page Top -->
+<!-- Begin Page Top -->
 <div class="top-container">
 <div class="center-container">
 <div class="top-header">Network Debugger</div>
 </div>
 </div>
-
-<!-- Page Contents -->
-<div class="center-container display-full" id="test-basic-run">
-<input type="button" class="button button-enabled extra-large-button" value="Run Diagnostics" id="runDiagnosticsBtn" />
+<div>
+<div class="center-container">
+<div class="sub-menu-contents"><span id="advancedOptionsToggleBtn" class="footer-link">Customize Diagnostics</span> &middot; <span class="footer-link" id="loadTestConfigBtn">Load Test Configuration</span></div>
 </div>
+</div>
+<!-- End Page Top -->
+
+<!-- Configuration Page -->
+<div class="center-container display-none" id="overlay-window-frame">
+<div id="overlay-window-contents">
+<p>Paste configurations you received from Google into the box below and press "Run Tests"</p>
+<textarea id="test-config-input"><tests id="parent-tests"><test type="dns"><recordtype>a</recordtype><hostname>google.com</hostname><resolver>8.8.8.8</resolver></test><test type="telnet"><host>google.com</host><port>80</port></test></tests></textarea>
+<span class="footer-link" id="quitConfigLoadScreenBtn">Back</span>
+<input type="button" class="button button-enabled" value="Run Tests" id="runLoadedTests" />
+</div>
+</div>
+
+<!-- Main Page Contents -->
+<div id="page-contents">
 
 <div class="center-container display-none" id="test-detailed-options">
 <div id="left">
 <div class="column-header">Telnet Tests</div>
-<input type="button" class="button button-enabled" value="google.com HTTP" id="gHttpBtn" />
-<input type="button" class="button button-enabled" value="mail.google.com HTTP" id="mHttpBtn" />
-<input type="button" class="button button-enabled" value="drive.google.com HTTP" id="dHttpBtn" />
-<input type="button" class="button button-disabled" value="aspmx.l.google.com SMTP" id="aspmxBtn" />
+<input type="checkbox" value="google.com-http" id="google-com-http-telnet" checked="checked" /><label for="google-com-http-telnet">google.com HTTP</label><br />
+<input type="checkbox" value="mail.google.com-http" id="mail-google-com-http-telnet" checked="checked" /><label for="mail-google-com-http-telnet">mail.google.com HTTP</label><br />
+<input type="checkbox" value="drive.google.com-http" id="drive-google-com-http-telnet" checked="checked" /><label for="drive-google-com-http-telnet">drive.google.com HTTP</label><br />
 </div>
 
 <div id="right">
 <div class="column-header">More</div>
-<input type="button" class="button button-enabled" value="Interface Information" id="networkInterfaceInformationBtn" />
+<input type="checkbox" id="network-interface-information" checked="checked" /><label for="network-interface-information">Interface Information</label>
 </div>
 
 <div id="middle">
@@ -65,25 +81,29 @@
 <option>CNAME</option>
 </select>
 <br />
-<input type="button" class="button button-enabled" value="Google DNS" id="gDnsBtn" />
-<input type="button" class="button button-enabled" value="Level 3 DNS" id="l3DnsBtn" />
-<input type="button" class="button button-enabled" value="Open DNS" id="oDnsBtn" />
 <br />
-<input type="text" value="Custom Resolver IP" id="dnsResolver" size="25" class="textbox" />
-<input type="button" class="button button-enabled" value="Custom DNS" id="customDnsBtn" />
+<input type="checkbox" id="g-dns" checked="checked" /><label for="g-dns">Google DNS</label><br />
+<input type="checkbox" id="l3-dns" checked="checked" /><label for="l3-dns">Level 3</label><br />
+<input type="checkbox" id="o-dns" checked="checked" /><label for="o-dns">Open DNS</label><br />
+<input type="checkbox" id="customDnsBtn" /><input type="text" value="Custom Resolver IP" id="dnsResolver" size="25" class="textbox" />
 <hr />
-<input type="button" class="button button-enabled" value="Discover Public Resolver" id="whoAmIDnsBtn" />
+<input type="checkbox" id="whoAmIDnsBtn" /><label for="whoAmIDnsBtn">Discover Resolver</label>
 </div>
 
 </div>
 
-<div class="center-container">
+<div class="center-container display-full" id="run-diagnostics-container">
+<div><input type="button" class="button button-enabled extra-large-button" value="Run Diagnostics" id="runDiagnosticsBtn" /></div>
+</div>
+
+<div class="center-container display-none" id="test-output-area">
 <textarea id="console" readonly="readonly"></textarea>
 <div>
-<input type="button" class="button button-enabled" value="Advanced Options" id="advancedOptionsToggleBtn" />
 <input type="button" class="button button-enabled" value="Clear" id="consoleClearBtn" />
 <input type="button" class="button button-enabled" value="Copy" id="consoleCopyBtn" />
 </div>
+</div>
+
 </div>
 </body>
 </html>

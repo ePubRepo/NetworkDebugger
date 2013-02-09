@@ -1,53 +1,26 @@
 // Copyright 2013. All Rights Reserved.
 
 document.addEventListener('DOMContentLoaded', function() {
-  // add listener for running general diagnostics
+  // add listeners for running general diagnostics
   document.getElementById('runDiagnosticsBtn').addEventListener('click',
-      basicDiagnostics);
+      AppGuiManager.runDiagnostics);
   document.getElementById('advancedOptionsToggleBtn').addEventListener('click',
-      toggledvancedOptions);
-
-  // add listeners for tcp telnet tests
-  document.getElementById('gHttpBtn').addEventListener('click',
-      gHttpBtnClick);
-  document.getElementById('mHttpBtn').addEventListener('click',
-      mHttpBtnClick);
-  document.getElementById('dHttpBtn').addEventListener('click',
-      dHttpBtnClick);
-
-  // add listeners for udp dns tests
-  document.getElementById('gDnsBtn').addEventListener('click',
-      gDnsBtnClick);
-  document.getElementById('oDnsBtn').addEventListener('click',
-      oDnsBtnClick);
-  document.getElementById('l3DnsBtn').addEventListener('click',
-      l3DnsBtnClick);
-  document.getElementById('whoAmIDnsBtn').addEventListener('click',
-      whoAmIDnsBtnClick);
-  document.getElementById('customDnsBtn').addEventListener('click',
-      customDnsBtnClick);
-
-  // add listeners to more info
-  document.getElementById('networkInterfaceInformationBtn')
-      .addEventListener('click', networkInterfaceInformationBtnClick);
+      AppGuiManager.toggleAdvancedOptions);
+  
+  // add listeners for loading, quitting, or running test configurations
+  document.getElementById('loadTestConfigBtn').addEventListener('click',
+      AppGuiManager.showLoadTestConfigurationsGui);
+  document.getElementById('quitConfigLoadScreenBtn').addEventListener('click',
+      AppGuiManager.hideLoadTestConfigurationsGui);
+  document.getElementById('runLoadedTests').addEventListener('click',
+      AppGuiManager.processInputTestConfigurations);
 
   // add listeners to console control
   document.getElementById('consoleClearBtn')
-      .addEventListener('click', consoleClearBtnBtnClick);
+      .addEventListener('click', AppGuiManager.consoleClearBtnClicked);
   document.getElementById('consoleCopyBtn')
-      .addEventListener('click', consoleCopyBtnBtnClick);
+      .addEventListener('click', AppGuiManager.consoleCopyBtnClicked);
 });
-
-
-function ndbConsole(outStr, logLevel) {
-   var now = new Date();
-   var strDate = now.getUTCFullYear() + '-' + (now.getUTCMonth() + 1) + '-' +
-      now.getUTCDate() + ' ' + now.getUTCHours() + ':' + now.getUTCMinutes() +
-      ':' + now.getUTCSeconds() + '.' + now.getUTCMilliseconds() + ' UTC';
-
-   var strToAppend = strDate + '\r\n' + outStr + '\r\n\r\n';
-   document.getElementById('console').value += strToAppend;
-}
 
 // function for callback and display of DNS results
 // TODO: Turn this into an object
@@ -60,21 +33,20 @@ function finishedDnsFnc(completedDnsQueryManager) {
   var finishedOutputRecords = finishedOutputRecordManager.getOutputRecords();
 
   for (var n = 0; n < finishedOutputRecords.length; n++) {
-    ndbConsole(finishedOutputRecords[n].getMessage(),
-               finishedOutputRecords[n].getLevel());
+    AppGuiManager.printOutputToScreenConsole(
+               finishedOutputRecords[n].getMessage(),
+               finishedOutputRecords[n].getLevel(),
+               finishedOutputRecords[n].getTimestamp());
   }
 }
 
 
 function basicDiagnostics() {
   // hosts to query Google Public DNS
-  // TODO: put this in global file
-  var arrHostsToQuery = ['google.com', 'mail.google.com', 'docs.google.com',
-                         'accounts.google.com', 'apis.google.com'];
 
-  for (var i = 0; i < arrHostsToQuery.length; i++) {
+  for (var i = 0; i < Util.hostnamesToTest.length; i++) {
     var outputRecordManager = new OutputRecorderManager();
-    var gDnsQuery = new DNSQueryManager(arrHostsToQuery[i],
+    var gDnsQuery = new DNSQueryManager(Util.hostnamesToTest[i],
         DNSUtil.RecordNumber.A,
         '8.8.8.8',
         finishedDnsFnc,
@@ -154,8 +126,10 @@ function customDnsBtnClick() {
 function printFinishedTelnetOutput(outputRecordManager) {
   var nicOutputRecords = outputRecordManager.getOutputRecords();
   for (var j = 0; j < nicOutputRecords.length; j++) {
-    ndbConsole(nicOutputRecords[j].getMessage(),
-               nicOutputRecords[j].getLevel());
+    AppGuiManager.printOutputToScreenConsole(
+               nicOutputRecords[j].getMessage(),
+               nicOutputRecords[j].getLevel(),
+               nicOutputRecords[j].getTimestamp());
   }
 }
 
@@ -192,8 +166,10 @@ function networkInterfaceInformationBtnClick() {
   function printOutput(outputRecordManager) {
     var nicOutputRecords = outputRecordManager.getOutputRecords();
     for (var j = 0; j < nicOutputRecords.length; j++) {
-      ndbConsole(nicOutputRecords[j].getMessage(),
-                 nicOutputRecords[j].getLevel());
+      AppGuiManager.printOutputToScreenConsole(
+                 nicOutputRecords[j].getMessage(),
+                 nicOutputRecords[j].getLevel(),
+                 nicOutputRecords[j].getTimestamp());
     }
   }
 
@@ -201,31 +177,4 @@ function networkInterfaceInformationBtnClick() {
   var nicInfo = new NetworkInterfaceInformation(outputRecordManager,
                                                 printOutput);
   nicInfo.getNicInformation();
-}
-
-function consoleCopyBtnBtnClick() {
-   document.getElementById('console').select();
-   document.execCommand('Copy');
-}
-
-
-function consoleClearBtnBtnClick() {
-   document.getElementById('console').value = '';
-}
-
-function toggledvancedOptions() {
-  var toggleBtn = document.getElementById('advancedOptionsToggleBtn');
-  if (toggleBtn.value == 'Advanced Options') {
-    document.getElementById('test-detailed-options').className =
-      'center-container display-full';
-    document.getElementById('test-basic-run').className =
-      'center-container display-none';
-    toggleBtn.value = 'Basic Mode';
-  } else {
-    document.getElementById('test-detailed-options').className =
-      'center-container display-none';
-    document.getElementById('test-basic-run').className =
-      'center-container display-full';
-    toggleBtn.value = 'Advanced Options';
-  }
 }

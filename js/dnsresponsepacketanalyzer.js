@@ -55,7 +55,7 @@ DNSResponsePacketAnalyzer.isIp4AddressInCidrBlock = function(testIp,
   var binaryAddressTestIp = '';
   for (var i = 0; i < octectTestArr.length; i++) {
     var decimalOctet = Number(octectTestArr[i]);
-    var binaryOctet = DNSUtil.baseConversion(decimalOctet, 2, 10);
+    var binaryOctet = Util.baseConversion(decimalOctet, 2, 10);
     var paddedBinaryOctet = pad(binaryOctet, 8);
     binaryAddressTestIp += paddedBinaryOctet;
   }
@@ -65,7 +65,7 @@ DNSResponsePacketAnalyzer.isIp4AddressInCidrBlock = function(testIp,
   var binaryAddressCidrIp = '';
   for (var n = 0; n < octectCidrArr.length; n++) {
     var decimalOctet = Number(octectCidrArr[n]);
-    var binaryOctet = DNSUtil.baseConversion(decimalOctet, 2, 10);
+    var binaryOctet = Util.baseConversion(decimalOctet, 2, 10);
     var paddedBinaryOctet = pad(binaryOctet, 8);
     binaryAddressCidrIp += paddedBinaryOctet;
   }

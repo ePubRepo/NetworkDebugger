@@ -187,11 +187,11 @@ DNSPacketDeserializer.prototype.parseDataSection = function(recordTypeNum,
       while (!dataSectionDeserializer.isEOF_()) {
         var nextByte = dataSectionDeserializer.byte_();
         var nibbleADec = (nextByte & 0xf0) >> 4;
-        var nibbleAHex = DNSUtil.baseConversion(nibbleADec, 16);
+        var nibbleAHex = Util.baseConversion(nibbleADec, 16);
         nibbleNum++;
 
         var nibbleBDec = nextByte & 0x0f;
-        var nibbleBHex = DNSUtil.baseConversion(nibbleBDec, 16);
+        var nibbleBHex = Util.baseConversion(nibbleBDec, 16);
         nibbleNum++;
 
         dataSectionTxt += nibbleAHex + nibbleBHex;

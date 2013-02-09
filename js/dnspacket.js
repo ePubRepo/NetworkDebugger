@@ -28,8 +28,10 @@ DNSPacket = function(opt_flags) {
 
 
 /**
- * 
- * @private 
+ * Array containing the specific DNS records that are a part of each
+ *   section of the DNS packet.
+ * @type Array.String.DNSRecord
+ * @private
  */
 DNSPacket.prototype.data_ = null;
 
@@ -60,7 +62,7 @@ DNSPacket.prototype.push = function(packetSection, dnsRecord) {
  * @param {DNSUtil.PacketSection} packetSection Section of the DNS record.
  * @param {function(DNSRecord)} callbackFunction Function to pass each
  *                                               DNS record that is part of
- *                                               a section to. 
+ *                                               a section to.
  */
 DNSPacket.prototype.eachRecord = function(packetSection, callbackFunction) {
   var filter = false;
