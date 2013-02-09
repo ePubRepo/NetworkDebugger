@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
       AppGuiManager.runDiagnostics);
   document.getElementById('advancedOptionsToggleBtn').addEventListener('click',
       AppGuiManager.toggleAdvancedOptions);
-  
+
   // add listeners for loading, quitting, or running test configurations
   document.getElementById('loadTestConfigBtn').addEventListener('click',
       AppGuiManager.showLoadTestConfigurationsGui);

@@ -48,6 +48,7 @@
 <div class="center-container display-none" id="overlay-window-frame">
 <div id="overlay-window-contents">
 <p>Paste configurations you received from Google into the box below and press "Run Tests"</p>
+<p id="test-config-error" class="display-none"></p>
 <textarea id="test-config-input"><tests id="parent-tests"><test type="dns"><recordtype>a</recordtype><hostname>google.com</hostname><resolver>8.8.8.8</resolver></test><test type="telnet"><host>google.com</host><port>80</port></test></tests></textarea>
 <span class="footer-link" id="quitConfigLoadScreenBtn">Back</span>
 <input type="button" class="button button-enabled" value="Run Tests" id="runLoadedTests" />

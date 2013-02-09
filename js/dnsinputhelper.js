@@ -76,5 +76,5 @@ DNSInputHelper.prototype.getCustomResolverIp = function() {
  */
 DNSInputHelper.prototype.getRecordType = function() {
   var recordTypeName = document.getElementById(this.domIdDnsRecordType_).value;
-  return DNSUtil.getRecordTypeNumByRecordTypeName(recTypeName);
+  return DNSUtil.getRecordTypeNumByRecordTypeName(recordTypeName);
 };

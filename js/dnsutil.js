@@ -38,6 +38,10 @@ DNSUtil.PacketSection = {
 };
 
 
+/**
+ * @param {string} name Name of DNS record type.
+ * @return {DNSUtil.RecordNumber} RFC 1035 DNS record number type.
+ */
 DNSUtil.getRecordTypeNumByRecordTypeName = function(name) {
   switch (name.toUpperCase()) {
     case 'MX':
@@ -51,7 +55,8 @@ DNSUtil.getRecordTypeNumByRecordTypeName = function(name) {
     default:
       return DNSUtil.RecordNumber.A;
   }
-}
+};
+
 
 /**
  * Static function to return the DNS record type number.
@@ -62,22 +67,17 @@ DNSUtil.getRecordTypeNameByRecordTypeNum = function(num) {
   switch (num) {
     case DNSUtil.RecordNumber.A:
       return 'A';
-      break;
 
     case DNSUtil.RecordNumber.AAAA:
       return 'AAAA';
-      break;
 
     case DNSUtil.RecordNumber.MX:
       return 'MX';
-      break;
 
     case DNSUtil.RecordNumber.CNAME:
       return 'CNAME';
-      break;
 
     case DNSUtil.RecordNumber.TXT:
       return 'TXT';
-      break;
    }
 };
