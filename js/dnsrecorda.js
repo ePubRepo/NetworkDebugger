@@ -8,6 +8,7 @@
 
 
 /**
+ * DNS A-record, storing the name, TTL, IP, etc..
  * @param {string} name Name of the A record.
  * @param {integer} ttl Time to live.
  * @constructor

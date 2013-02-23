@@ -8,6 +8,7 @@
 
 
 /**
+ * TXT record.
  * @param {string} name Name of the TXT record.
  * @param {integer} ttl Time to live of the record.
  * @constructor

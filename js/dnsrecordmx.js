@@ -8,6 +8,7 @@
 
 
 /**
+ * MX Record.
  * @param {string} name Name of the MX record.
  * @param {integer} ttl Time to live of the record.
  * @constructor

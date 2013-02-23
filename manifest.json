@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Network Debugging",
-  "version": "0.5",
+  "version": "0.6",
   "minimum_chrome_version": "25",
   "icons": {
     "128": "img/icon_128.png",

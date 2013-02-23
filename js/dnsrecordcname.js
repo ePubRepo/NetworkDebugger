@@ -1,13 +1,14 @@
 // Copyright 2013. All Rights Reserved.
 
 /**
- * @fileoverview DNS TXT record.
+ * @fileoverview DNS CNAME record.
  *
  * @author ebeach@google.com (Eric Beach)
  */
 
 
 /**
+ * CNAME DNS record.
  * @param {string} name Name of the CNAME record.
  * @param {integer} ttl Time to live of the record.
  * @constructor
@@ -20,7 +21,7 @@ DNSRecordCNAME = function(name, ttl) {
 };
 
 
-// DNSRecordTXT inherits from DNSRecord
+// DNSRecordCNAME inherits from DNSRecord
 // Replace with goog.inherits
 DNSRecordCNAME.prototype = new DNSRecord();
 DNSRecordCNAME.prototype.constructor = DNSRecordCNAME;
